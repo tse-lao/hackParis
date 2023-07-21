@@ -1,6 +1,6 @@
 "use client"
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
-import { Web3Modal } from '@web3modal/react'
+import { Web3Button, Web3Modal } from '@web3modal/react'
 import { WagmiConfig, configureChains, createConfig } from 'wagmi'
 import { arbitrum, mainnet, polygon } from 'wagmi/chains'
 
@@ -19,6 +19,9 @@ export default function App({children}: {children: React.ReactNode}) {
   return (
     <>
       <WagmiConfig config={wagmiConfig}>
+          <div className="fixed top-10 left-[50%]">
+            <Web3Button />
+          </div>
         {children}
       </WagmiConfig>
       <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />

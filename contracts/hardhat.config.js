@@ -16,8 +16,8 @@ module.exports = {
             },
         },
     },
-    defaultNetwork: "goerli",
-    // defaultNetwork: "mumbai",
+    // defaultNetwork: "goerli",
+    defaultNetwork: "mumbai",
 
     networks: {
         goerli: {

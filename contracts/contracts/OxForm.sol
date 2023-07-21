@@ -5,9 +5,13 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./interfaces/ISismoGlobalVerifier.sol";
+import "./interfaces/ISismoStructs.sol";
 import "./interfaces/ISender.sol";
 
-contract OxForm is Ownable, ERC1155, AccessControl {
+contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
+
+    ISismoGlobalVerifier sismoVerifier;
     ISender sender;
     using Counters for Counters.Counter;
 
@@ -47,14 +51,18 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
     mapping(address => uint256) private userContributions;
 
-    constructor(ISender _sender) ERC1155("") {
+    mapping(uint256 => ClaimRequest[]) public formRequiredClaims;
+
+    constructor(ISismoGlobalVerifier _sismoVerifier, ISender _sender) ERC1155("") {
+        sismoVerifier = _sismoVerifier;
         sender = _sender;
     }
 
     function formRequest(
         uint256 mintPrice,
         uint256 submitionReward,
-        EventMetadata memory eventMetadata
+        EventMetadata memory eventMetadata,
+        ClaimRequest[] memory _claims
     ) external payable {
 
         require(submitionReward <= msg.value, "provide more ETH");
@@ -64,6 +72,13 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         uint256 _formID = formID.current();
         // Native blockchain token request 
         formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, msg.sender, IERC20(address(0)));
+
+        for (uint i = 0; i < _claims.length; ) {
+            formRequiredClaims[_formID].push(_claims[i]);
+            unchecked {
+                ++i;
+            }
+        }
 
          _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
 
@@ -84,7 +99,8 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         uint256 valueTransferAmount,
         address tokenTreasury,
         IERC20 rewardToken,
-        EventMetadata memory eventMetadata
+        EventMetadata memory eventMetadata,
+        ClaimRequest[] memory _claims
     ) external payable {
         require(address(rewardToken) != address(0), "cant set 0 address as ERC20");
         require(submitionReward <= valueTransferAmount, "provide more ETH");
@@ -97,6 +113,13 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         // Native blockchain token request 
         formInfo[_formID] = FormInfo(mintPrice, valueTransferAmount, submitionReward, tokenTreasury, rewardToken);
 
+        for (uint i = 0; i < _claims.length; ) {
+            formRequiredClaims[_formID].push(_claims[i]);
+            unchecked {
+                ++i;
+            }
+        }
+         
          _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
 
         emit FormRequestCreated(
@@ -112,6 +135,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
     function formContribution(
         uint256 _formID,
+        bytes memory proofs,
         string calldata contributionCID
     ) public exists(_formID) {
         FormInfo storage form = formInfo[_formID];
@@ -122,15 +146,16 @@ contract OxForm is Ownable, ERC1155, AccessControl {
             "no rewards to take"
         );
 
+        // Verifying Claims
+        if (formRequiredClaims[_formID].length > 0) {
+            sismoVerifier.verifySismoProof(proofs, formRequiredClaims[_formID]);
+        }
+
         formContributors[_formID][msg.sender] = true;
         uint reward = form.submitionReward;
         if (reward > 0) {
-            address payable to = payable(msg.sender);
-            to.transfer(reward);
-        }
-        if (reward > 0) {
             // Supporting both native and ERC20 tokens us contribution rewards
-            if (address(form.rewardToken) != address(0)) {
+            if (address(form.rewardToken) == address(0)) {
                 address payable to = payable(msg.sender);
                 to.transfer(reward);
             } else {

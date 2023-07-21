@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
  
- abstract contract sender  {
+contract sender  {
     function sendViaCall(address payable _to) external payable {
         // Call returns a boolean value indicating success or failure.
         // This is the current recommended method to use.

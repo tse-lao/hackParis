@@ -1,9 +1,11 @@
 "use client"
+import QuickCreateButton from '@/components/custom/extra/QuickCreateButton'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Button, Web3Modal } from '@web3modal/react'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { WagmiConfig, configureChains, createConfig } from 'wagmi'
 import { arbitrum, mainnet, polygon } from 'wagmi/chains'
-
 const chains = [arbitrum, mainnet, polygon]
 const projectId = process.env.NEXT_PUBLIC_WALLET_CLIENT_ID as string;
 
@@ -19,11 +21,14 @@ export default function App({children}: {children: React.ReactNode}) {
   return (
     <>
       <WagmiConfig config={wagmiConfig}>
-          <div className="fixed top-10 left-[50%]">
+          <div className="fixed top-10 left-10">
             <Web3Button />
           </div>
         {children}
+       <QuickCreateButton />
+       <ToastContainer />
       </WagmiConfig>
+      
       <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
     </>
   )

@@ -1,6 +1,6 @@
 
 export default function Textarea({ label, name, rows, value, onChange, required, code, className, helptext }
-    : {label:string, name:string, rows:number, value:string, onChange:any, required:boolean, code?:boolean, className?:string, helptext?:string}) {
+    : {label?:string, name:string, rows:number, value:string, onChange?:any, required:boolean, code?:boolean, className?:string, helptext?:string}) {
     return (
       <div className={`${className}`}>
         <label htmlFor={name} className="block text-sm tracking-wider text-gray-700">

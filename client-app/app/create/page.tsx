@@ -3,6 +3,7 @@ import FormDetails from "@/components/custom/form/FormDetails";
 import FormLayout from "@/components/custom/form/FormLayout";
 import UploadBanner from "@/components/custom/form/UploadBanner";
 import Steps from "@/components/custom/steps/Steps";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 
@@ -28,7 +29,7 @@ export default function CreateForm() {
     ]
     
   return (
-    <div className="flex flex-col  items-center justify-center mt-20 p-24">
+    <div className="flex flex-col items-center justify-center mt-4 p-24">
         <UploadBanner />
         <Steps
             steps={steps}
@@ -36,7 +37,10 @@ export default function CreateForm() {
             nextStep={nextStep}
         />
         
-        {steps[activeStep].component}
+        <Button>Submit </Button>
+        <div className="mt-10">
+            {steps[activeStep].component}    
+        </div>
     </div>
   )
 }

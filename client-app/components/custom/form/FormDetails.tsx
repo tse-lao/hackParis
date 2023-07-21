@@ -46,7 +46,6 @@ export default function FormDetails({ nextStep}: { nextStep: any}) {
             value={formData.description}
             onChange={handleChange}
             required={true}
-            helptext="Enter a description of your form so people know what the form is used for. "
           />
           <div className="grid grid-cols-2 gap-4">
             <InputField

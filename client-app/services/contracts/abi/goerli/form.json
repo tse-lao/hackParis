@@ -407,11 +407,6 @@
                         "internalType": "string",
                         "name": "category",
                         "type": "string"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "formAdmin",
-                        "type": "address"
                     }
                 ],
                 "internalType": "struct OxForm.EventMetadata",
@@ -506,11 +501,6 @@
                         "internalType": "string",
                         "name": "category",
                         "type": "string"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "formAdmin",
-                        "type": "address"
                     }
                 ],
                 "internalType": "struct OxForm.EventMetadata",

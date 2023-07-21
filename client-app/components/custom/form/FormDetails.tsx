@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../ui/c
 import InputField from "../input/InputField";
 import Textarea from "../input/Textarea";
 
-export default function FormDetails({ nextStep}: { nextStep: any}) {
+export default function FormDetails({ nextStep, passData}: { nextStep: any, passData: any}) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -21,6 +21,11 @@ export default function FormDetails({ nextStep}: { nextStep: any}) {
       [name]: value,
     }));
   };
+  
+  const submitData = () => {
+    passData(formData);
+    nextStep(1);
+  }
 
   return (
     <Card>
@@ -71,7 +76,7 @@ export default function FormDetails({ nextStep}: { nextStep: any}) {
       </CardContent>
       <CardFooter>
         <Button
-          onClick={() => nextStep(1)}
+          onClick={submitData}
           className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
           Next

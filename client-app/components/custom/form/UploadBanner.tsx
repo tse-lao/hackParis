@@ -1,23 +1,15 @@
 "use client"
 
 import Image from "next/image";
-import { useState } from "react";
 
-export default function UploadBanner() {
-  const [image, setImage] = useState("");
-  
-  const handleImageChange = (e:any) => {
-    if (e.target.files && e.target.files[0]) {
-      let img = URL.createObjectURL(e.target.files[0]);
-      setImage(img);
-    }
-  };
+export default function UploadBanner({handleImage, image}: {handleImage: any, image:any}) {
+ 
   
   
   if(image){
     return (
 
-        <div className="space-y-1 text-center hover:bg-white hover:opacity-50" onClick={(e) => {e.preventDefault();setImage("")}}>
+        <div className="space-y-1 text-center hover:bg-white hover:opacity-50" onClick={(e) => {e.preventDefault();handleImage("")}}>
           <Image src={image} alt="banner_upload"
             width={500}
             height={100}
@@ -49,7 +41,7 @@ export default function UploadBanner() {
           className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
         >
           <span>Upload a file</span>
-          <input id="file-upload" name="file-upload" type="file" accept="images/png, images/jpg, images/gif" className="sr-only"  onChange={handleImageChange}/>
+          <input id="file-upload" name="file-upload" type="file" accept="images/png, images/jpg, images/gif" className="sr-only"  onChange={handleImage}/>
         </label>
         <p className="pl-1">or add ipfs link</p>
       </div>

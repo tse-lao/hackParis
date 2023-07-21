@@ -34,7 +34,6 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
     event ContributionCreated(uint256 formID, string contributionCID, address contributor);
 
-
     Counters.Counter private formID;
 
     mapping(uint256 => FormInfo) private formInfo;
@@ -94,6 +93,9 @@ contract OxForm is Ownable, ERC1155, AccessControl {
             address payable to = payable(msg.sender);
             to.transfer(reward);
         }
+        // substract the contributionReward from the treasury amount
+        form.escrowAmount -= reward;
+
         emit ContributionCreated(_formID, contributionCID, msg.sender);
     }
 

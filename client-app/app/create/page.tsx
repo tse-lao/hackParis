@@ -4,7 +4,9 @@ import FormLayout from "@/components/custom/form/FormLayout";
 import UploadBanner from "@/components/custom/form/UploadBanner";
 import Steps from "@/components/custom/steps/Steps";
 import { Button } from "@/components/ui/button";
+import { storeFile } from "@/services/useNFTStorage";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 
 
@@ -22,12 +24,39 @@ export default function CreateForm() {
         //make sure we can submit form here.. 
         console.log(formData)
         console.log(formElements)
+        let imageCID = "";
+        if(image == ""){
+            toast.error("Please upload a banner image");
+        }
+        
+        await toast.promise(storeFile(image), {
+            pending: 'Uploading your banner to ipfs...',
+            success: 'Succesfully uploaded your banner!',
+            error: 'Something went wrong..',
+        }).then(
+            (result) => {
+                imageCID = result as string;
+                console.log(result);
+            });
+        
+        let cid = "";
+        await toast.promise(storeFile(JSON.stringify({formDetail: formData, formElements:formElements, banner: imageCID})), {
+            pending: 'Uploading to IPFS...',
+            success: 'Uploaded to IPFS!',
+            error: 'Failed to upload to IPFS',
+        }).then(
+            (result) => {
+                cid = result as string;
+                console.log(result);
+            });
         
     }
+    
     
     const saveForm = (data: any) => {
         console.log(data);
         setFormData(data);
+ 
     }
     
     function addElement(element:any){

@@ -49,7 +49,6 @@ contract OxForm is Ownable, ERC1155, AccessControl {
     function formRequest(
         uint256 mintPrice,
         uint256 submitionReward,
-        address tokenTreasury,
         EventMetadata memory eventMetadata
     ) external payable {
 
@@ -59,7 +58,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
         uint256 _formID = formID.current();
         // Native blockchain token request 
-        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, tokenTreasury, IERC20(address(0)));
+        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, msg.sender, IERC20(address(0)));
 
          _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
 
@@ -73,7 +72,6 @@ contract OxForm is Ownable, ERC1155, AccessControl {
             eventMetadata.formAdmin
         );
     }
-
 
     function formRequestERC20(
         uint256 mintPrice,
@@ -145,6 +143,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         uint256 mintPrice = formInfo[_formID].mintPrice;
         require(mintPrice == msg.value, "wrong price");
         address payable to = payable(formInfo[_formID].tokenTreasury);
+        // TODO GIVE SOME FEES TO A PAYMASTER SO THAT HE NEVER REMAINS WITHOUT FUNDS 
         to.transfer(msg.value);
         _mint(msg.sender, _formID, 1, "");
     }

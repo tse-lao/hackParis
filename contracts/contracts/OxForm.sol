@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract OxForm is Ownable, ERC1155, AccessControl {
+    
     using Counters for Counters.Counter;
 
     struct FormInfo {

@@ -10,6 +10,7 @@ const wallet = new ethers.Wallet(private_key, ethers.provider)
 module.exports = async({ deployments }) => {
     const { deploy } = deployments
     console.log("Wallet+ Ethereum Address:", wallet.address)
+
     const WorldcoinSoulboundToken = await hre.ethers.getContractFactory("WorldcoinSoulboundToken");
     let worldId = "worldcoinAddress"
     let _appId = "appID"

@@ -27,7 +27,6 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         string formCID;
         string name;
         string category;
-        address formAdmin;
     }
 
     event FormRequestCreated(
@@ -79,7 +78,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             }
         }
 
-         _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
+         _grantRole(getFormAdminRole(_formID), msg.sender);
 
         emit FormRequestCreated(
             _formID,
@@ -88,7 +87,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             eventMetadata.formCID,
             submitionReward,
             IERC20(address(0)),
-            eventMetadata.formAdmin
+            msg.sender
         );
     }
 
@@ -119,7 +118,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             }
         }
          
-         _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
+         _grantRole(getFormAdminRole(_formID), msg.sender);
 
         emit FormRequestCreated(
             _formID,
@@ -128,7 +127,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             eventMetadata.formCID,
             submitionReward,
             rewardToken,
-            eventMetadata.formAdmin
+            msg.sender
         );
     }
 

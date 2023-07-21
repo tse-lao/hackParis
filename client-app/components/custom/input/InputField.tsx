@@ -1,7 +1,7 @@
 "use client"
 
 export default function InputField({ label, name, type, value, onChange,placeholder, required,helptext, onEnter }:
-     {label:string, name?:string, type:string, value:string, onChange:any, placeholder?:string, required?:boolean,helptext?:string, onEnter?:any}
+     {label?:string, name?:string, type:string, value:string, onChange:any, placeholder?:string, required?:boolean,helptext?:string, onEnter?:any}
     ) {
 
     
@@ -17,9 +17,13 @@ export default function InputField({ label, name, type, value, onChange,placehol
   }
     return (
       <div className="col-span-1">
-        <label htmlFor={name} className="block text-sm tracking-wider text-gray-700">
-          {label}
-        </label>
+        {label &&
+        (
+            <label htmlFor={name} className="block text-sm tracking-wider text-gray-700">
+            {label}
+          </label>  
+        )}
+        
         <input
           type={type}
           name={name}

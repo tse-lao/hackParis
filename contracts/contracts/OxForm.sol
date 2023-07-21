@@ -104,14 +104,6 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         return keccak256(abi.encodePacked(_formID, "REQUEST_ADMIN_ROLE"));
     }
 
-    function hasAccess(address user, uint256 _formID) public view returns (bool) {
-        return balanceOf(user, _formID) > 0;
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return formID.current();
-    }
-
     modifier exists(uint256 _formID) {
         require(_formID <= formID.current(), "non existed formID");
         _;

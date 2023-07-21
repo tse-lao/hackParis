@@ -5,9 +5,10 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./interfaces/ISender.sol";
 
 contract OxForm is Ownable, ERC1155, AccessControl {
-    
+    ISender sender;
     using Counters for Counters.Counter;
 
     struct FormInfo {
@@ -44,7 +45,11 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
     mapping(uint256 => mapping(address => bool)) private formContributors;
 
-    constructor() ERC1155("") {}
+    mapping(address => uint256) private userContributions;
+
+    constructor(ISender _sender) ERC1155("") {
+        sender = _sender;
+    }
 
     function formRequest(
         uint256 mintPrice,
@@ -144,12 +149,42 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         require(mintPrice == msg.value, "wrong price");
         address payable to = payable(formInfo[_formID].tokenTreasury);
         // TODO GIVE SOME FEES TO A PAYMASTER SO THAT HE NEVER REMAINS WITHOUT FUNDS 
-        to.transfer(msg.value);
+        if (isContract(formInfo[_formID].tokenTreasury)) {
+            sender.sendViaCall{value: msg.value}(to);
+        } else {
+            to.transfer(msg.value);
+        }
         _mint(msg.sender, _formID, 1, "");
+    }
+
+    function changeTreasuryAddress(uint256 _formID, address _newTokenTreasuryAddress)external onlyRole(getFormAdminRole(_formID)){
+        FormInfo storage form = formInfo[_formID];
+        form.tokenTreasury = _newTokenTreasuryAddress;
     }
 
     function getFormAdminRole(uint256 _formID) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_formID, "FORM_ADMIN_ROLE"));
+    }
+
+    // For lighthouse custom access control
+    function hasAccess(address user, uint256 _formID) public view returns (bool) {
+        return balanceOf(user, _formID) > 0;
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return formID.current();
+    }
+
+    function getUserContributions(address user) public view returns (uint256) {
+        return userContributions[user];
+    }
+
+    function isContract(address addr) internal view returns (bool) {
+        uint size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
     }
 
     modifier exists(uint256 _formID) {

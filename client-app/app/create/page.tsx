@@ -2,19 +2,34 @@
 import FormDetails from "@/components/custom/form/FormDetails";
 import FormLayout from "@/components/custom/form/FormLayout";
 import UploadBanner from "@/components/custom/form/UploadBanner";
+import UserRequirements from "@/components/custom/sismo/UserRequirements";
 import Steps from "@/components/custom/steps/Steps";
 import { Button } from "@/components/ui/button";
+import { ABI, CONTRACTS } from "@/services/contracts";
 import { storeFile } from "@/services/useNFTStorage";
+import { ClaimRequest } from "@sismo-core/sismo-connect-react";
+
 import { useState } from "react";
 import { toast } from "react-toastify";
-
-
+import { useContractWrite } from "wagmi";
 
 export default function CreateForm() {
     const [activeStep, setActiveStep] = useState(0);
-    const [formData, setFormData] = useState();
+    const [formData, setFormData] = useState({
+        name: "",
+        description: "",
+        groups: [] as ClaimRequest,
+        banner: "",
+    });
     const [formElements, setFormElements] = useState<any[]>([]);
     const [image, setImage]  = useState("");
+    const [groups, setGroups] = useState<any[]>();
+    const { write:formRequest } = useContractWrite({
+        address: CONTRACTS.goerli.forms,
+        abi: ABI.goerli.forms,
+        functionName: 'formRequest',
+    });
+    
     const nextStep = (step: number) => {
         console.log(step)
         setActiveStep(step);
@@ -48,6 +63,13 @@ export default function CreateForm() {
             (result) => {
                 cid = result as string;
                 console.log(result);
+                const category = "test"
+                const metadata = [
+                    result, formData.name, category
+                ]
+                formRequest({
+                    args: [mintPrice, submissionReward, metadata, formData.groups]
+                })
             });
         
     }
@@ -66,6 +88,24 @@ export default function CreateForm() {
         let newElements = formElements.filter((element:any) => element.id !== id);
         setFormElements(newElements);
       }
+      
+      const addGroup = (group: any) => {
+        console.log("show me what it is us")
+        console.log(group);
+        //it it in the group
+        if(groups == undefined){
+            //add in existing group
+            setGroups([group]);
+        }
+        setGroups((prev) => [...prev, group]);
+        ;
+
+    };
+    
+    const addClaimRequest = (claimRequest: any) => {
+        console.log(claimRequest);
+    }
+    
     const steps = [
         {
             name: "Form Details", 
@@ -75,9 +115,14 @@ export default function CreateForm() {
             name: "Form Layout", 
             component: <FormLayout formElements={formElements} removeElement={removeElement} addElement={addElement}/>
         },
+        {
+            name: "User Requirements", 
+            component: <UserRequirements nextStep={console.log("nextStep")} addGroup={addGroup} groups={groups}/>
+        },
     ]
 
   
+    
     const handleImageChange = (e:any) => {
       if (e.target.files && e.target.files[0]) {
         let img = URL.createObjectURL(e.target.files[0]);

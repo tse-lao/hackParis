@@ -1,4 +1,12 @@
+<<<<<<< HEAD
+
+
+
+
+
+=======
 import goerliFormABI from "./abi/goerli/form.json";
+>>>>>>> 00d78e2c6c349d4145bb820831c83cc5dbb8a220
 
 const CONTRACTS = {
   goerli: {

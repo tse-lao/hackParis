@@ -17,11 +17,11 @@ contract OxForm is Ownable, ERC1155, AccessControl {
     }
 
     struct EventMetadata {
-        string  formCID;
-        string  name;
-        string  category;
-        string  formMetadataCID;
-        address[] requestAdmins;
+        string formCID;
+        string name;
+        string category;
+        string formMetadataCID;
+        address formAdmin;
     }
 
     event FormRequestCreated(
@@ -30,7 +30,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         string category,
         string formMetadataCID,
         uint256 submitionReward,
-        address[] requestAdmins
+        address formAdmin
     );
 
     event ContributionCreated(uint256 formID, string contributionCID, address contributor);
@@ -41,9 +41,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
     mapping(uint256 => mapping(address => bool)) private formContributors;
 
-    constructor() ERC1155("") {
-
-    }
+    constructor() ERC1155("") {}
 
     function formRequest(
         uint256 mintPrice,
@@ -60,12 +58,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
 
         formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, tokenTreasury);
 
-        for (uint i = 0; i < eventMetadata.requestAdmins.length; ) {
-            _grantRole(getRequestAdminRole(_formID), eventMetadata.requestAdmins[i]);
-            unchecked {
-                ++i;
-            }
-        }
+         _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
 
         emit FormRequestCreated(
             _formID,
@@ -73,7 +66,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
             eventMetadata.category,
             eventMetadata.formMetadataCID,
             submitionReward,
-            eventMetadata.requestAdmins
+            eventMetadata.formAdmin
         );
     }
 
@@ -100,8 +93,16 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         emit ContributionCreated(_formID, contributionCID, msg.sender);
     }
 
-    function getRequestAdminRole(uint256 _formID) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_formID, "REQUEST_ADMIN_ROLE"));
+    function mint(uint256 _formID) external payable exists(_formID) {
+        uint256 mintPrice = formInfo[_formID].mintPrice;
+        require(mintPrice == msg.value, "wrong price");
+        address payable to = payable(formInfo[_formID].tokenTreasury);
+        to.transfer(msg.value);
+        _mint(msg.sender, _formID, 1, "");
+    }
+
+    function getFormAdminRole(uint256 _formID) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_formID, "FORM_ADMIN_ROLE"));
     }
 
     modifier exists(uint256 _formID) {

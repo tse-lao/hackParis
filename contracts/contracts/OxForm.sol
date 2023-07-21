@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -14,6 +15,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         uint256 escrowAmount;
         uint256 submitionReward;
         address tokenTreasury;
+        IERC20 rewardToken;
     }
 
     struct EventMetadata {
@@ -30,6 +32,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         string category,
         string formMetadataCID,
         uint256 submitionReward,
+        IERC20 rewardToken,
         address formAdmin
     );
 
@@ -55,8 +58,8 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         formID.increment();
 
         uint256 _formID = formID.current();
-
-        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, tokenTreasury);
+        // Native blockchain token request 
+        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, tokenTreasury, IERC20(address(0)));
 
          _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
 
@@ -66,6 +69,40 @@ contract OxForm is Ownable, ERC1155, AccessControl {
             eventMetadata.category,
             eventMetadata.formMetadataCID,
             submitionReward,
+            IERC20(address(0)),
+            eventMetadata.formAdmin
+        );
+    }
+
+
+    function formRequestERC20(
+        uint256 mintPrice,
+        uint256 submitionReward,
+        uint256 valueTransferAmount,
+        address tokenTreasury,
+        IERC20 rewardToken,
+        EventMetadata memory eventMetadata
+    ) external payable {
+        require(address(rewardToken) != address(0), "cant set 0 address as ERC20");
+        require(submitionReward <= valueTransferAmount, "provide more ETH");
+
+        rewardToken.transferFrom(msg.sender, address(this), valueTransferAmount);
+
+        formID.increment();
+
+        uint256 _formID = formID.current();
+        // Native blockchain token request 
+        formInfo[_formID] = FormInfo(mintPrice, valueTransferAmount, submitionReward, tokenTreasury, rewardToken);
+
+         _grantRole(getFormAdminRole(_formID), eventMetadata.formAdmin);
+
+        emit FormRequestCreated(
+            _formID,
+            eventMetadata.name,
+            eventMetadata.category,
+            eventMetadata.formMetadataCID,
+            submitionReward,
+            rewardToken,
             eventMetadata.formAdmin
         );
     }
@@ -76,6 +113,7 @@ contract OxForm is Ownable, ERC1155, AccessControl {
     ) public exists(_formID) {
         FormInfo storage form = formInfo[_formID];
         require(!formContributors[_formID][msg.sender], "you can only submit once");
+        
         require(
             form.escrowAmount >= form.submitionReward,
             "no rewards to take"
@@ -86,6 +124,16 @@ contract OxForm is Ownable, ERC1155, AccessControl {
         if (reward > 0) {
             address payable to = payable(msg.sender);
             to.transfer(reward);
+        }
+        if (reward > 0) {
+            // Supporting both native and ERC20 tokens us contribution rewards
+            if (address(form.rewardToken) != address(0)) {
+                address payable to = payable(msg.sender);
+                to.transfer(reward);
+            } else {
+                form.rewardToken.approve(msg.sender, reward);
+                require(form.rewardToken.transfer(msg.sender, reward));
+            }
         }
         // substract the contributionReward from the treasury amount
         form.escrowAmount -= reward;

@@ -1,24 +1,17 @@
-
-import goerliFormABI from './abi/goerli/form.json';
-
-
-
+import goerliFormABI from "./abi/goerli/form.json";
 
 const CONTRACTS = {
-    goerli: {
-        FORM: "0x2B452f1e27f43D11dB160ee51b8d4B9D113D6F85", 
-    }, 
-    mumbai: {
-        FORM: ""
-    }
-}
-
-const ABI = {
-    goerli: {
-        form: goerliFormABI,
-    }
-}
-export {
-    ABI, CONTRACTS
+  goerli: {
+    FORM: "0xe29369e7020354Bf49A90ca491f92Df26Fe2c50E",
+  },
+  mumbai: {
+    FORM: "",
+  },
 };
 
+const ABI = {
+  goerli: {
+    form: goerliFormABI,
+  },
+};
+export { ABI, CONTRACTS };

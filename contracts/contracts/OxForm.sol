@@ -27,7 +27,6 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         string formCID;
         string name;
         string category;
-        string formMetadataCID;
         address formAdmin;
     }
 
@@ -35,7 +34,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         uint256 formID,
         string name,
         string category,
-        string formMetadataCID,
+        string formCID,
         uint256 submitionReward,
         IERC20 rewardToken,
         address formAdmin
@@ -86,7 +85,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             _formID,
             eventMetadata.name,
             eventMetadata.category,
-            eventMetadata.formMetadataCID,
+            eventMetadata.formCID,
             submitionReward,
             IERC20(address(0)),
             eventMetadata.formAdmin
@@ -126,7 +125,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             _formID,
             eventMetadata.name,
             eventMetadata.category,
-            eventMetadata.formMetadataCID,
+            eventMetadata.formCID,
             submitionReward,
             rewardToken,
             eventMetadata.formAdmin

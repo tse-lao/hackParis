@@ -1,0 +1,14 @@
+{
+  "name": "ethparis",
+  "version": "1.0.0",
+  "description": "hackathon eth paris",
+  "main": "index.ts",
+  "scripts": {
+    "start": "concurrently \"npm --prefix ./backend start\" \"npm --prefix ./client-app run dev\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

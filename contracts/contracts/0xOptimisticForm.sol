@@ -153,9 +153,16 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     function assertContribution(
         uint256 _formID,
         string calldata contributionCID,
-        uint256 rows
+        uint256 rows,
+        bytes memory proofs
     ) public exists(_formID) {
         OptimisticFormInfo storage form = optimisticFormInfo[_formID];
+
+        // Verifying Claims
+        if (formRequiredClaims[_formID].length > 0) {
+            sismoVerifier.verifySismoProof(proofs, formRequiredClaims[_formID]);
+        }
+
         // UMA assert valid contribution
         assertContributionTruth(_formID, Contribution(_formID, msg.sender, contributionCID, rows));
     }
@@ -170,7 +177,7 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             AncillaryData.toUtf8BytesUint(_formID),
             " with data : ",
             contribution.contributionCID,
-            " with numebr of entries 0x",
+            " with number of entries 0x",
             AncillaryData.toUtf8BytesUint(contribution.rows),
             " contributor address : 0x",
             AncillaryData.toUtf8BytesAddress(contribution.contributor)
@@ -277,6 +284,11 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         _;
     }
 
+    modifier onlyFormMembers(uint256 _datasetID) {
+        require(formAccess(msg.sender, _datasetID), "anothorized request action");
+        _;
+    }
+
     function mint(uint256 _formID) external payable exists(_formID) {
         uint256 mintPrice = optimisticFormInfo[_formID].mintPrice;
         require(mintPrice == msg.value, "wrong price");
@@ -300,10 +312,10 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
        // To get used with lighthouse to encrypt a dataset
     function hasAccess(address user, uint256 _formID) public view returns (bool) {
-        return requestAccess(user, _formID);
+        return formAccess(user, _formID);
     }
 
-    function requestAccess(address user, uint256 _formID) public view returns (bool) {
+    function formAccess(address user, uint256 _formID) public view returns (bool) {
         return
             hasRole(getFormAdminRole(_formID), user) ||
             hasRole(getFormContributorRole(_formID), user) || balanceOf(user, _formID) > 0;

@@ -25,14 +25,14 @@ module.exports = async({ deployments }) => {
 
     // console.log("sismoGlobalVerifier  :", sismoGlobalVerifier.address)
 
-    const OxForm = await hre.ethers.getContractFactory("OxForm")
+    // const OxForm = await hre.ethers.getContractFactory("OxForm")
 
-    // const oxForm = await OxForm.deploy(sismoGlobalVerifier.address, sender.address)
-    const oxForm = await OxForm.deploy("0x9A84aA1594F6EFd15bb93BC75b958AaC0AEcFe05", "0x2Eb638C8d78673A14322aBE1d0317AD32F3f5249")
+    // // const oxForm = await OxForm.deploy(sismoGlobalVerifier.address, sender.address)
+    // const oxForm = await OxForm.deploy("0x9A84aA1594F6EFd15bb93BC75b958AaC0AEcFe05", "0x2Eb638C8d78673A14322aBE1d0317AD32F3f5249")
 
-    await oxForm.deployed()
+    // await oxForm.deployed()
 
-    console.log("oxForm  :", oxForm.address)
+    // console.log("oxForm  :", oxForm.address)
 
     // let mintPrice = 1
     // let submissionReward = 1

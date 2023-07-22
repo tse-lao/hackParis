@@ -25,38 +25,38 @@ module.exports = async({ deployments }) => {
 
     // console.log("sismoGlobalVerifier  :", sismoGlobalVerifier.address)
 
-    const OxOptimisticForm = await hre.ethers.getContractFactory("OxOptimisticForm")
+    // const OxOptimisticForm = await hre.ethers.getContractFactory("OxOptimisticForm")
 
-    // const oxOptimisticForm = await OxOptimisticForm.deploy(sismoGlobalVerifier.address, optimticOracleV3Mumbai, sender.address)
-    const oxOptimisticForm = await OxOptimisticForm.deploy(
-        "0x9A84aA1594F6EFd15bb93BC75b958AaC0AEcFe05", "0x2Eb638C8d78673A14322aBE1d0317AD32F3f5249"
-    )
+    // // const oxOptimisticForm = await OxOptimisticForm.deploy(sismoGlobalVerifier.address, optimticOracleV3Mumbai, sender.address)
+    // const oxOptimisticForm = await OxOptimisticForm.deploy(
+    //     "0x9A84aA1594F6EFd15bb93BC75b958AaC0AEcFe05", "0x2Eb638C8d78673A14322aBE1d0317AD32F3f5249"
+    // )
 
-    await oxOptimisticForm.deployed()
-    console.log("oxOptimisticForm deployed in address : ", oxOptimisticForm.address)
+    // await oxOptimisticForm.deployed()
+    // console.log("oxOptimisticForm deployed in address : ", oxOptimisticForm.address)
 
-    const OxFormEscalationManager = await hre.ethers.getContractFactory("OxFormEscalationManager")
+    // const OxFormEscalationManager = await hre.ethers.getContractFactory("OxFormEscalationManager")
 
-    const oxFormEscalationManager = await OxFormEscalationManager.deploy(oxOptimisticForm.address)
-    await oxFormEscalationManager.deployed()
-    console.log("oxFormEscalationManager  :", oxFormEscalationManager.address)
-    let oxFormEscalationManagerInstance = OxFormEscalationManager.attach(
-        oxFormEscalationManager.address
-    )
-    tx = await oxFormEscalationManagerInstance.configureEscalationManager(
-        true,
-        true,
-        true,
-        true,
-        false
-    )
-    await tx.wait()
-    console.log("EscalationManager configured")
-    const oxOptimisticFormInstance = OxOptimisticForm.attach(oxOptimisticForm.address)
+    // const oxFormEscalationManager = await OxFormEscalationManager.deploy(oxOptimisticForm.address)
+    // await oxFormEscalationManager.deployed()
+    // console.log("oxFormEscalationManager  :", oxFormEscalationManager.address)
+    // let oxFormEscalationManagerInstance = OxFormEscalationManager.attach(
+    //     oxFormEscalationManager.address
+    // )
+    // tx = await oxFormEscalationManagerInstance.configureEscalationManager(
+    //     true,
+    //     true,
+    //     true,
+    //     true,
+    //     false
+    // )
+    // await tx.wait()
+    // console.log("EscalationManager configured")
+    // const oxOptimisticFormInstance = OxOptimisticForm.attach(oxOptimisticForm.address)
 
-    tx = await oxOptimisticFormInstance.setEscalationManager(oxFormEscalationManager.address)
-    await tx.wait()
-    console.log("EscalationManager setted on oxOptimisticForm contract")
+    // tx = await oxOptimisticFormInstance.setEscalationManager(oxFormEscalationManager.address)
+    // await tx.wait()
+    // console.log("EscalationManager setted on oxOptimisticForm contract")
 
     // let RequestDetails = [
     //     "category",

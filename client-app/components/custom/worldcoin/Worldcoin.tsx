@@ -1,7 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button'
 import { decode } from '@/lib/wld'
-import { BigNumber } from 'ethers'
 import { ABI, CONTRACTS } from '@/services/contracts'
 import { Web3Button } from '@web3modal/react'
 import { IDKitWidget, ISuccessResult, solidityEncode } from '@worldcoin/idkit'
@@ -13,28 +12,28 @@ export default function Worldcoin() {
 	const [proof, setProof] = useState<ISuccessResult | null>(null)
 
 	const { config } = usePrepareContractWrite({
-		address: CONTRACTS.mumbai.worldcoin,
+		address: CONTRACTS.mumbai.worldcoin as `0x${string}`,
 		abi: ABI.mumbai.worldcoin,
 		enabled: proof != null && address != null,
 		functionName: 'MintHumanBadge',
 		args: [
 			address!,
-			proof?.merkle_root ? decode<BigNumber>('uint256', proof?.merkle_root ?? '') : BigNumber.from(0),
-			proof?.nullifier_hash ? decode<BigNumber>('uint256', proof?.nullifier_hash ?? '') : BigNumber.from(0),
+			proof?.merkle_root ? decode<BigInt>('uint256', proof?.merkle_root ?? '') : BigInt(0),
+			proof?.nullifier_hash ? decode<BigInt>('uint256', proof?.nullifier_hash ?? '') : BigInt(0),
 			proof?.proof
-				? decode<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>(
+				? decode<[BigInt, BigInt, BigInt, BigInt, BigInt, BigInt, BigInt, BigInt]>(
 						'uint256[8]',
 						proof?.proof ?? ''
 				  )
 				: [
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
 				  ],
 		],
 	})
@@ -49,8 +48,8 @@ export default function Worldcoin() {
                     >Claim Token</Button>
 				) : (
 					<IDKitWidget
-						app_id="app_staging_00ab13dfdd4a83b0fd94b11b3a81a29e" // must be an app set to on-chain
-						action={solidityEncode(['uint256'], ["WHST"])}
+						app_id="app_17dda298a99fac82b669a6da6405db74" // must be an app set to on-chain
+						action={"worldcoin-human-soulbound-token"}
 						signal={address}
 						onSuccess={setProof}
 						enableTelemetry

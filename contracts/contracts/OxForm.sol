@@ -162,9 +162,10 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
                 form.rewardToken.approve(msg.sender, reward);
                 require(form.rewardToken.transfer(msg.sender, reward));
             }
+            // substract the contributionReward from the treasury amount
+            form.escrowAmount -= reward;
         }
-        // substract the contributionReward from the treasury amount
-        form.escrowAmount -= reward;
+
 
         emit ContributionCreated(_formID, contributionCID, msg.sender);
 

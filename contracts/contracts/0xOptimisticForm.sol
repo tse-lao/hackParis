@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 import {OptimisticOracleV3CallbackRecipientInterface} from "./interfaces/OptimisticOracleV3CallbackRecipientInterface.sol";
+import {AncillaryData} from "@uma/core/contracts/common/implementation/AncillaryData.sol";
 import {OptimisticOracleV3Interface} from "./interfaces/OptimisticOracleV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
@@ -22,7 +23,10 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
     // TODO CUSTOM DIPUTE RESOLUTION MECHANISM
     IEscalationManager EscalationManager;
+
     ISender sender;
+
+    bytes32 public constant Identifier = "YES_OR_NO_QUERY";
 
     struct OptimisticFormInfo {
         string formCID;
@@ -58,6 +62,11 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         address tokenTreasury;
     }
 
+    struct assertionDetails {
+        uint256 formID;
+        bool assertionType;
+    }
+
     enum TokenGateType {
         NONE,
         ERC20,
@@ -73,6 +82,9 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         address[] admins
     );
 
+    event contributionAssertionCreated(uint256 formID, bytes32 assertionID);
+
+
     using Counters for Counters.Counter;
 
     // Counter for token IDs
@@ -84,6 +96,10 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     mapping(uint256 => ClaimRequest[]) public formRequiredClaims;
 
     mapping(uint256 => bytes32[]) public formAssertions;
+
+    mapping(bytes32 => assertionDetails) assertionInfo;
+
+    mapping(bytes32 => Contribution) private assertionToContribution;
 
     
         // Goerli
@@ -159,8 +175,40 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         uint256 _formID,
         Contribution memory contribution
     ) internal {
-        // TODO
-    }
+        OptimisticFormInfo storage form = optimisticFormInfo[_formID];
+        bytes memory assertedClaim = abi.encodePacked(
+            "Contribution on datasetID 0x",
+            AncillaryData.toUtf8BytesUint(_formID),
+            " with data : ",
+            contribution.contributionCID,
+            " with numebr of entries 0x",
+            AncillaryData.toUtf8BytesUint(contribution.rows),
+            " contributor address : 0x",
+            AncillaryData.toUtf8BytesAddress(contribution.contributor)
+        );
+
+        IERC20 bondCurrency = optimisticOracleV3.defaultCurrency();
+        uint256 bondAmount = optimisticOracleV3.getMinimumBond(address(bondCurrency));
+        if (bondAmount > 0) {
+            bondCurrency.approve(address(optimisticOracleV3), bondAmount);
+        }
+        bytes32 assertionID = optimisticOracleV3.assertTruth(
+            assertedClaim,
+            msg.sender,
+            address(this), // callback recipient
+            address(EscalationManager), // escalation manager
+            form.resolutionDays,
+            bondCurrency,
+            bondAmount,
+            Identifier,
+            bytes32(block.chainid)
+        );
+        formAssertions[_formID].push(assertionID);
+
+        assertionInfo[assertionID].formID = _formID;
+        assertionInfo[assertionID].assertionType = false;
+        assertionToContribution[assertionID] = contribution;
+        emit contributionAssertionCreated(_formID, assertionID);    }
 
     function assertDatasetTreasury(
         uint256 _formID,

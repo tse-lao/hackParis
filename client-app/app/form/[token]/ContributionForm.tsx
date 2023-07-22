@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button"
+import DisplayForm from "./DisplayForm"
 
 
-export default function ContributionForm({dataForm, submitData}: {dataForm: any, submitData: any}) {
+export default function ContributionForm({form, submitData}: {form: any, submitData: any}) {
+    
+    if(!form){
+        return <div>no form found...</div>
+    }
   return (
     <pre>
-        {JSON.stringify(dataForm, null, 2)}
-        
-        <Button onClick={submitData}>
-            Submit data
-        </Button>
+        <DisplayForm elements={form} submitData={submitData}/>
     </pre>
   )
 }

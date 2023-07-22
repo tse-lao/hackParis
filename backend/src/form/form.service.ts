@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client/core';
+import { Injectable } from '@nestjs/common';
 
 //SUPPORT FOR MORE NETWORKS IS POSSIBLE AS LONG AS THE GRAPH SUPPORTS IT.
 const thegraph = new ApolloClient({
@@ -7,25 +7,27 @@ const thegraph = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-
 export interface Form {
-  formID:number
-  formCID:string
-  category:string
-  name:string
-  rewardToken:string
-  submitionReward:string
-  formAdmin:string
-  contributions?: Contribution[]
-  totalContributions: number
-}
-export interface Contribution{
-  id: string
-  formID: string
-  contributionCID: string, 
-  contributor: string
+  formID: number;
+  formCID: string;
+  category: string;
+  name: string;
+  rewardToken: string;
+  submitionReward: string;
+  formAdmin: string;
+  contributions?: Contribution[];
+  totalContributions: number;
+  form?: any;
+  description?: string;
+  image?: string;
 }
 
+export interface Contribution {
+  id: string;
+  formID: string;
+  contributionCID: string;
+  contributor: string;
+}
 
 @Injectable()
 export class FormService {
@@ -33,9 +35,7 @@ export class FormService {
     const result = await this.getForms(creator);
 
     for (let i = 0; i < result.length; i++) {
-      const contributions = await this.allContributionsByForm(
-        result[i].formID,
-      );
+      const contributions = await this.allContributionsByForm(result[i].formID);
       result[i].totalContributions = contributions.length;
     }
 
@@ -45,7 +45,7 @@ export class FormService {
   async getForms(formAdmin: string): Promise<Array<Form>> {
     let query = gql`
       {
-        formRequestCreateds(first: 20){
+        formRequestCreateds(first: 20) {
           formID
           formCID
           category
@@ -53,7 +53,7 @@ export class FormService {
           rewardToken
           submitionReward
           formAdmin
-      }
+        }
       }
     `;
 
@@ -76,14 +76,14 @@ export class FormService {
       fetchPolicy: 'no-cache',
     });
     const requests = response.data.formRequestCreateds.map((request: Form) => {
-      return { 
-        formID:request.formID,
+      return {
+        formID: request.formID,
         formCID: request.formCID,
         category: request.category,
         name: request.name,
         rewardToken: request.rewardToken,
         submitionReward: request.submitionReward,
-        formAdmin: request.formAdmin
+        formAdmin: request.formAdmin,
       };
     });
 
@@ -94,10 +94,7 @@ export class FormService {
     const forms = await this.getForms('');
 
     for (let i = 0; i < forms.length; i++) {
-
-      const contributions = await this.allContributionsByForm(
-        forms[i].formID,
-      );
+      const contributions = await this.allContributionsByForm(forms[i].formID);
       forms[i].totalContributions = contributions.length;
     }
 
@@ -131,9 +128,13 @@ export class FormService {
     console.log(request);
 
     const contributions = await this.allContributionsByForm(formID);
+    
 
+    const readCID = await fetch(`https://ipfs.io/ipfs/${request.formCID}`);
+    const data = await readCID.json();
+    console.log(data);
     const form: Form = {
-      formID:request.formID,
+      formID: request.formID,
       formCID: request.formCID,
       category: request.category,
       name: request.name,
@@ -142,6 +143,9 @@ export class FormService {
       formAdmin: request.formAdmin,
       contributions: contributions,
       totalContributions: contributions.length,
+      image: data.banner,
+      description: data.formDetail.description,
+      form: data.formElements,
     };
 
     return form;

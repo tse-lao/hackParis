@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { FilesModule } from './files/files.module';
+import { FormModule } from './form/form.module';
 import { PrivacyModule } from './privacy/privacy.module';
-import {FormModule} from './form/form.module';
 
 @Module({
-  imports: [PrivacyModule, FormModule],
+  imports: [PrivacyModule, FormModule, FilesModule],
   controllers: [],
   providers: [],
 })

@@ -65,6 +65,7 @@ contract BaseEscalationManager is EscalationManagerInterface {
      * @param ancillaryData ancillary data of the price being requested.
      * @return price from the escalation manager to inform the resolution of the dispute.
      */
+     
     function getPrice(
         bytes32 identifier,
         uint256 time,

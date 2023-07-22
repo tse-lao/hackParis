@@ -6,13 +6,17 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./interfaces/ISismoGlobalVerifier.sol";
+import "./interfaces/ISismoStructs.sol";
 import "./interfaces/IEscalationManager.sol";
 import "./interfaces/ISender.sol";
 
-contract OxOptimisticForm is Ownable, ERC1155 {
+contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
     /// @dev Will be used to resolve disputes on the delivery
     // Goerli
     OptimisticOracleV3Interface private optimisticOracleV3;
+
+    ISismoGlobalVerifier sismoVerifier;
 
     // TODO CUSTOM DIPUTE RESOLUTION MECHANISM
     IEscalationManager EscalationManager;
@@ -23,6 +27,8 @@ contract OxOptimisticForm is Ownable, ERC1155 {
         uint256 formFunds;
         uint64 resolutionDays;
         address tokenTreasury;
+        address tokenGateAddress;
+        TokenGateType tokenGateType;
         bytes32[] assertions;
     }
 
@@ -35,9 +41,15 @@ contract OxOptimisticForm is Ownable, ERC1155 {
 
     struct Dataset {
         uint256 formID;
-        string DatasetCID;
+        string datasetCID;
         uint256 mintPrice;
         address tokenTreasury;
+    }
+
+    enum TokenGateType {
+        ERC20,
+        ERC721,
+        ERC1155
     }
 
     using Counters for Counters.Counter;
@@ -47,19 +59,24 @@ contract OxOptimisticForm is Ownable, ERC1155 {
 
     // Mapping to store Data requests information for each formID
     mapping(uint256 => OptimisticFormInfo) private optimisticFormInfo;
-    
 
-    constructor(ISender _sender) ERC1155("") {
-        // To get used for sending funds on a contract viaCall
-        sender = _sender;
+    mapping(uint256 => ClaimRequest[]) public formRequiredClaims;
+
+    
         // Goerli
         // optimisticOracleV3 = OptimisticOracleV3Interface(
         //     0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
         // );
         // Mumbai
-        optimisticOracleV3 = OptimisticOracleV3Interface(
-            0x263351499f82C107e540B01F0Ca959843e22464a
-        );
+        // optimisticOracleV3 = OptimisticOracleV3Interface(
+        //     0x263351499f82C107e540B01F0Ca959843e22464a
+        // );
+    constructor(ISismoGlobalVerifier _sismoVerifier, OptimisticOracleV3Interface _optimisticOracleV3,ISender _sender) ERC1155("") {
+        sismoVerifier = _sismoVerifier;
+        optimisticOracleV3 = _optimisticOracleV3;
+        // To get used for sending funds on a contract viaCall
+        sender = _sender;
+
     }
 
     // UMA OPERATIONS TODO
@@ -70,16 +87,23 @@ contract OxOptimisticForm is Ownable, ERC1155 {
     }
 
     function optimisticFormRequest(
-        string memory dataFormatCID,
+        string memory formCID,
         string memory requestName,
         string memory requestDescription,
         string memory category,
         uint256 mintPrice,
-        address[] memory requestAdmins
+        address[] memory requestAdmins,
+        ClaimRequest[] memory _claims
     ) public {
         formID.increment();
         uint256 _formID = formID.current();
         // TODO the request dataset workflow
+        for (uint i = 0; i < _claims.length; ) {
+            formRequiredClaims[_formID].push(_claims[i]);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     function assertContribution(

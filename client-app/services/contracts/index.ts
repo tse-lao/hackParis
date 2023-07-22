@@ -1,7 +1,7 @@
 import { Address } from "viem";
 import goerliFormABI from "./abi/goerli/form.json";
-import voteFormABI from "./abi/mumbai/voteForm.json";
 import mumbaiFormABI from "./abi/mumbai/formv2.json";
+import voteFormABI from "./abi/mumbai/voteForm.json";
 
 import worldABI from "./abi/mumbai/worldcoin.json";
 
@@ -13,7 +13,8 @@ const CONTRACTS = {
   mumbai: {
     form: "0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7" as Address,
     formV2: "0xAED60986c79c32977859d7d2D96f7bF8b299872D" as Address,
-    worldcoin: "0x646e10C6B1337c08D8464bB9f73C6F01e82Bf2e9" as Address,
+    //worldcoin: "0x8d6308ac8d34088587ef345736389ee915e2a9da" as Address,
+    worldcoin: "0x65f0eFc3AB80CBe23EDD22c9Ba6cec0bb85440a2" as Address,
     voteForm: "0x95F59D962432b44c2BcbcE1cfa7B514c78e03CB4" as Address,
   },
 };

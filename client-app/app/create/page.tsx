@@ -18,6 +18,10 @@ export default function CreateForm() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    type: "",
+    payee: "",
+    resolution:  60 * 60 * 24 * 2, //in minutes
+    reward: 0, //in wei
     groups: [] as ClaimRequest,
     banner: "",
   });
@@ -26,8 +30,13 @@ export default function CreateForm() {
   const [image, setImage] = useState("");
   const [groups, setGroups] = useState<any[]>();
   const { write: formRequest } = useContractWrite({
-    address: CONTRACTS.goerli.FORM as Address,
-    abi: ABI.goerli.form,
+    address: CONTRACTS.mumbai.form,
+    abi: ABI.mumbai.form,
+    functionName: "formRequest",
+  });
+  const { write: voteRequest } = useContractWrite({
+    address: CONTRACTS.mumbai.form,
+    abi: ABI.mumbai.form,
     functionName: "formRequest",
   });
 
@@ -100,7 +109,15 @@ export default function CreateForm() {
         }
 
         console.log(sismoProof);
-
+        
+        //TODO: needs to be implement when its ready..
+        if(formData.type == "vote") {
+          voteRequest({
+            args: [mintPrice, submissionReward, metadata, sismoProof],
+          });
+          return;
+        }
+        
         formRequest({
           args: [mintPrice, submissionReward, metadata, []],
         });
@@ -131,11 +148,33 @@ export default function CreateForm() {
     }
     setGroups((prev) => [...prev, group]);
   };
+  
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const selectType = (type: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      type: type,
+    }));
+  };
+  
+  const selectPayee = (payer: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      payee: payer,
+    }));
+  };
 
   const steps = [
     {
       name: "Form Details",
-      component: <FormDetails nextStep={nextStep} passData={saveForm} />,
+      component: <FormDetails formData={formData} handleChange={handleChange} submitDetails={nextStep} selectType={selectType} selectPayee={selectPayee} />,
     },
     {
       name: "Form Layout",

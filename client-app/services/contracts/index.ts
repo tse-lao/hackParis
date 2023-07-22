@@ -6,7 +6,7 @@ const CONTRACTS = {
     FORM: "0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7" as Address,
   },
   mumbai: {
-    form: "0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7",
+    form: "0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7" as Address,
   },
 };
 

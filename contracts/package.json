@@ -41,6 +41,7 @@
         "@openzeppelin/contracts-upgradeable": "^4.8.3",
         "@sismo-core/sismo-connect-solidity": "^0.0.19",
         "@typechain/hardhat": "^6.1.2",
+        "@uma/core": "^2.56.0",
         "babel-eslint": "^10.1.0",
         "dotenv": "^10.0.0",
         "hardhat-deploy-ethers": "^0.3.0-beta.13",

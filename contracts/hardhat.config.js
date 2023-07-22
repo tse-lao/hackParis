@@ -32,8 +32,8 @@ module.exports = {
         },
     },
     etherscan: {
-        // apiKey: "JYMKRTHHFUSX4X11I1NQRNW6X7K2FJFJUU",
-        apiKey: "KNVT7KRT9B15Z5UTXZT8TG8HNMIJXWXRMY",
+        apiKey: "JYMKRTHHFUSX4X11I1NQRNW6X7K2FJFJUU",
+        // apiKey: "KNVT7KRT9B15Z5UTXZT8TG8HNMIJXWXRMY",
 
         customChains: [],
     },

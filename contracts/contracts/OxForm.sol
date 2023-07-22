@@ -20,7 +20,9 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         uint256 escrowAmount;
         uint256 submitionReward;
         address tokenTreasury;
+        // optional
         IERC20 rewardToken;
+        string formCID;
     }
 
     struct EventMetadata {
@@ -69,7 +71,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
         uint256 _formID = formID.current();
         // Native blockchain token request 
-        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, msg.sender, IERC20(address(0)));
+        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, msg.sender, IERC20(address(0)), eventMetadata.formCID);
 
         for (uint i = 0; i < _claims.length; ) {
             formRequiredClaims[_formID].push(_claims[i]);
@@ -109,7 +111,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
         uint256 _formID = formID.current();
         // Native blockchain token request 
-        formInfo[_formID] = FormInfo(mintPrice, valueTransferAmount, submitionReward, tokenTreasury, rewardToken);
+        formInfo[_formID] = FormInfo(mintPrice, valueTransferAmount, submitionReward, tokenTreasury, rewardToken, eventMetadata.formCID);
 
         for (uint i = 0; i < _claims.length; ) {
             formRequiredClaims[_formID].push(_claims[i]);
@@ -165,6 +167,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         form.escrowAmount -= reward;
 
         emit ContributionCreated(_formID, contributionCID, msg.sender);
+
     }
 
     function mint(uint256 _formID) external payable exists(_formID) {
@@ -197,6 +200,10 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     function totalSupply() public view returns (uint256) {
         return formID.current();
     }
+    
+    // function uri(uint256 _formID) public exists(_formID) view virtual override returns (string memory) {
+    //     return formInfo[_formID].metadataURI;
+    // }
 
     function getUserContributions(address user) public view returns (uint256) {
         return userContributions[user];

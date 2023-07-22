@@ -1,6 +1,7 @@
 
 import TemplateCard from '@/components/custom/TemplateCard'
 import CheckXMTP from '@/components/custom/extra/CheckXMTP'
+import Worldcoin from '@/components/custom/worldcoin/Worldcoin'
 
 const templates = [
   {
@@ -17,7 +18,12 @@ const templates = [
     link: "#",
     title: "XMTP Connect",
     description: <CheckXMTP />,
-  }
+  }, 
+  {
+  link: "#",
+  title: "Wordcoin",
+  description: <Worldcoin />,
+}
 ]
 
 export default function Home() {

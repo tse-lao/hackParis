@@ -1,6 +1,7 @@
 "use client"
 import { Button } from '@/components/ui/button'
 import { decode } from '@/lib/wld'
+import { BigNumber } from "ethers";
 import { ABI, CONTRACTS } from '@/services/contracts'
 import { Web3Button } from '@web3modal/react'
 import { IDKitWidget, ISuccessResult, solidityEncode } from '@worldcoin/idkit'
@@ -18,22 +19,25 @@ export default function Worldcoin() {
 		functionName: 'MintHumanBadge',
 		args: [
 			address!,
-			proof?.merkle_root ? decode<BigInt>('uint256', proof?.merkle_root ?? '') : BigInt(0),
-			proof?.nullifier_hash ? decode<BigInt>('uint256', proof?.nullifier_hash ?? '') : BigInt(0),
+			proof?.merkle_root ? decode<BigNumber>('uint256', proof?.merkle_root ?? '') : BigNumber.from(0),
+			proof?.nullifier_hash ? decode<BigNumber>('uint256', proof?.nullifier_hash ?? '') : BigNumber.from(0),
+			address!,
+			proof?.merkle_root ? decode<BigNumber>('uint256', proof?.merkle_root ?? '') : BigNumber.from(0),
+			proof?.nullifier_hash ? decode<BigNumber>('uint256', proof?.nullifier_hash ?? '') : BigNumber.from(0),
 			proof?.proof
-				? decode<[BigInt, BigInt, BigInt, BigInt, BigInt, BigInt, BigInt, BigInt]>(
+				? decode<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>(
 						'uint256[8]',
 						proof?.proof ?? ''
 				  )
 				: [
-						BigInt(0),
-						BigInt(0),
-						BigInt(0),
-						BigInt(0),
-						BigInt(0),
-						BigInt(0),
-						BigInt(0),
-						BigInt(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
+						BigNumber.from(0),
 				  ],
 		],
 	})

@@ -1,8 +1,8 @@
 "use client"
-import Steps from "@/components/custom/steps/Steps";
 import { ABI, CONTRACTS } from "@/services/contracts";
 import { getLighthouseKeys } from "@/services/lighthouse";
 import axios from "axios";
+import Image from "next/image";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useAccount, useContractRead, useContractWrite } from "wagmi";
@@ -32,7 +32,7 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
         functionName: 'formRequiredClaims',
         args: [data.formID]
     });
-    const {write: contributeForm, isError, error} = useContractWrite({
+    const {write: contributeForm, isLoading:contributing, isSuccess } = useContractWrite({
         address: CONTRACTS.mumbai.form,
         abi: ABI.mumbai.form,
         functionName: 'formContribution',
@@ -47,13 +47,7 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
         }
     }, [data, address]);
 
-   
-    useEffect(() => {
-        if(isError) {
-            toast.error(error?.message);
-        }
-        
-    }, [isError, error]);
+
 
     const handleNextStep = useCallback((step: number) => {
       if(step > 0 && !proof) {
@@ -63,13 +57,10 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
       setActiveStep(step);
     }, [proof]);
     
-    const handleProof = useCallback((proof: string) => {
-    if(!proof) return;
-      setProof(proof);
-      console.log(proof);
-      
-      
-    }, []);
+    const handleProof = (newProof: string) => {
+      if(!newProof) return;
+      setProof(newProof);
+    };
   
     const handleData = useCallback((formResult: any) => {
       setFormData(formResult);
@@ -123,6 +114,7 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
               args: [data.formID,proof,cid],
             });
             
+            
             toast.success("Succesfully contributed to the form");
       }
 
@@ -148,14 +140,24 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
     if(isContributor) {return <ContributeFinish data={data} />}
   
 
+    if(isSuccess) return <div>Thanks for contirbuting...</div>
     return ( 
         <>  
         <div className="flex flex-col justify-center items-center ">
+          <Image
+            src={`https://ipfs.io/ipfs/${data.image}`}
+            alt="Picture of the author"
+            width={600}
+            height={100}
+            
+          />
           <h1 className="flex justify-center m-x-12 text-2xl rounded-md p-4">
             {data.name}
           </h1>
+          <span>
+            {data.description}
+          </span>
         <div>
-        <Steps steps={steps} activeStep={activeStep} nextStep={handleNextStep} />
         </div>
         <div className="md:w-[600px] sm:w-[400px] lg:w-[600px] mt-8">
             {isLoading ? <div>

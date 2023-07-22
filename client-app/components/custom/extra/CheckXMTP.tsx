@@ -41,10 +41,7 @@ export default function CheckXMTP() {
     <div>
       {/* Display XMTP connection options if connected but not initialized */}
       {address && !isOnNetwork ? (
-        <div className="">
-          {address}
           <Button onClick={initXmtp}>Connect to XMTP</Button>
-        </div>
       ) : (
         <div className="bg-green-500 p-4 rounded-md text-black">You are connect</div>
       )}

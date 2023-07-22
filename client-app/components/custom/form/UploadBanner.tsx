@@ -10,7 +10,7 @@ export default function UploadBanner({handleImage, image}: {handleImage: any, im
     return (
 
         <div className="space-y-1 text-center hover:bg-white hover:opacity-50" onClick={(e) => {e.preventDefault();handleImage("")}}>
-          <Image src={image} alt="banner_upload"
+          <Image src={URL.createObjectURL(image)} alt="banner_upload"
             width={500}
             height={100}
             sizes="(max-height: 200px) 100vw"

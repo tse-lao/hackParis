@@ -1,3 +1,4 @@
+"use client"
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -6,8 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ABI, CONTRACTS } from "@/services/contracts";
 import Link from "next/link";
 import { FC } from "react";
+import { useContractWrite } from "wagmi";
 import { Contribution, Form } from "../types";
 
 
@@ -32,6 +35,12 @@ const ContributionCard: FC<{ contribution: Contribution }> = ({ contribution }) 
 
 
 const ContributionFinish: FC<ContributionFinishProps> = ({data}) => {
+  const {write} = useContractWrite({
+    address: CONTRACTS.mumbai.form,
+    abi: ABI.mumbai.form,
+    functionName: 'formContribution',
+  });
+  
   return (
     <div className="flex flex-col justify-center items-center ">
 

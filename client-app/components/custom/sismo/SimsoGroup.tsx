@@ -4,6 +4,7 @@ import { UsersIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 interface SismoGroupProps {
   group: any;
+  removeGroup: any;
 
 }
 
@@ -16,7 +17,7 @@ isSelectableByUser: true,
 extraData: "0x" */
 
 
-const SismoGroup: React.FC<SismoGroupProps> = ({ group }) => {
+const SismoGroup: React.FC<SismoGroupProps> = ({ group, removeGroup }) => {
     console.log("group item")
     console.log(group)
     
@@ -40,6 +41,9 @@ const SismoGroup: React.FC<SismoGroupProps> = ({ group }) => {
         <span className="text-gray-600 text-sm flex justify-center items-center gap-4 bottom-0 relative">
           <UsersIcon height="16" width="16"/> {group.latestSnapshot.valueDistribution[0].numberOfAccounts}
         </span>
+        <span className="text-red-600 text-sm flex justify-center items-center gap-4 bottom-0 relative" onClick={() => removeGroup(group.id)}>
+          remove 
+          </span>
       </CardContent>
 
     </Card>

@@ -7,8 +7,7 @@ import { CopyCheck, UserCheck } from "lucide-react";
 import { toast } from "react-toastify";
 import {
   Card,
-  CardContent,
-  CardFooter
+  CardContent
 } from "../../ui/card";
 import InputField from "../input/InputField";
 import Textarea from "../input/Textarea";
@@ -18,7 +17,7 @@ export default function FormDetails({ formData, handleChange, submitDetails, sel
   
   const isFormValid = () => {
     // Check if all required fields are filled in
-    return formData.name && formData.minContributions && formData.description;
+    return formData.name  && formData.description;
 };
 
     const handleContinue = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -148,15 +147,14 @@ export default function FormDetails({ formData, handleChange, submitDetails, sel
               </div>
             )}
         </div>
-      </CardContent>
-      <CardFooter>
         <Button
+          className="mt-12 w-full"
           onClick={handleContinue}
           disabled={!isFormValid()}
         >
           Next
         </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }

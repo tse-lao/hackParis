@@ -1,9 +1,19 @@
+"use client"
+import { Button } from '@/components/ui/button';
 import {
-    AuthType,
-    ClaimRequest
+  AuthType,
+  ClaimRequest,
+  useSismoConnect
 } from "@sismo-core/sismo-connect-react";
-import { FC } from "react";
-import { SismoProof } from "./SismoProof";
+import { FC, useEffect, useState } from "react";
+import { encodeAbiParameters } from 'viem';
+import { useAccount } from "wagmi";
+const CONFIG_SISMO = {
+  config: {
+    appId: process.env.NEXT_PUBLIC_SISMO || "",
+  },
+
+};
   
   export const AUTHS = [{ authType: AuthType.VAULT }];
   
@@ -27,10 +37,38 @@ import { SismoProof } from "./SismoProof";
       getProof: (proof: string) => void
       claims: any
   }
+
    
   const ContributionAccess: FC<ContributionAccessProps> = ({nextStep, getProof, claims}) => {
+    const { address } = useAccount();
+    const [loading, setLoading] = useState(false);
+    const { sismoConnect, responseBytes: sismoProof } = useSismoConnect(CONFIG_SISMO);
+
+
+      const onSismoConnect = () => {
+        if (!address) {
+          return;
+        }
     
-      console.log(claims);
+    
+        setLoading(true);
+       
+    
+        sismoConnect.request({
+          auths: AUTHS,
+          claims: claims,
+          signature: { message: encodeAbiParameters([{ type: 'address' }], [address]) },
+        });
+        setLoading(false);
+      };
+      
+      useEffect(() => {
+
+        if (sismoProof) {
+          getProof(sismoProof);
+        }
+    
+      }, [sismoProof]);
     
       return (
       <div className="flex flex-col gap-4">
@@ -44,7 +82,15 @@ import { SismoProof } from "./SismoProof";
           </ul>
           
       </div>
-        <SismoProof data={{auths: AUTHS, claims:claims}} nextStep={nextStep} getProof={getProof}/>
+      {sismoProof ? (
+        <Button disabled={loading} onClick={() => getProof(sismoProof)} >
+          Proof accepted | continue
+        </Button >
+      ) : (
+        <Button onClick={onSismoConnect} disabled={loading}>
+          Sismo Connect
+        </Button>
+      )}
       </div>
       
       );

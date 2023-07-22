@@ -1,6 +1,6 @@
-import { File } from "buffer";
+import { File } from 'buffer';
 export interface FileUpload {
-    file: File;
-    jwtToken: string;
-    address: string;
+  file: File;
+  jwtToken: string;
+  address: string;
 }

@@ -37,8 +37,8 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
         address: CONTRACTS.mumbai.form,
         abi: ABI.mumbai.form,
         functionName: 'formContribution',
-        gas: BigInt(10000000)
         });
+        
 
     useEffect(() => {
         if(data.contributions.length == 0) return;
@@ -64,11 +64,13 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
       setActiveStep(step);
     }, [proof]);
     
-    const handleProof = useCallback((proof: string) => {
+    const handleProof = (proof: string) => {
     if(!proof) return;
       setProof(proof);
       console.log(proof);
-    }, []);
+      
+      
+    };
   
     const handleData = useCallback((formResult: any) => {
       setFormData(formResult);
@@ -110,16 +112,16 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
       const contribute = async (cid: string) => {
         console.log(proof);
         if(!proof){
+          
             toast.error("You need to have a proof stored before you can upload")
             return;
         }
+        
+        
         console.log(data.formID, cid)
-        await contributeForm({
-                args: [
-                    data.formID,
-                    proof,
-                    cid
-                ]
+
+            contributeForm({
+              args: [data.formID,proof,cid],
             });
             
             toast.success("Succesfully contributed to the form");

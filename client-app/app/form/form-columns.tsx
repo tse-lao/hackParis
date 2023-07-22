@@ -15,7 +15,7 @@ export const FormColumns: ColumnDef<Form>[] = [
         const form = row.original
         
         return (
-            <Link href='#' className="text-green-300 hover:text-green-500">
+            <Link href={`/form/${form.formID}`} className="text-green-300 hover:text-green-500">
                 {form.name}
             </Link>
         )

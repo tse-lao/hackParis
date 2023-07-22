@@ -8,6 +8,10 @@ export type Form = {
     formAdmin:string
     contributions: Contribution[] | []
     totalContributions: number
+    form?: any
+    description?: string
+    image?: string
+    
   }
 export type Contribution = {
     dataCID: string

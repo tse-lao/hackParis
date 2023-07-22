@@ -11,26 +11,26 @@ module.exports = async({ deployments }) => {
     const { deploy } = deployments
     console.log("Wallet+ Ethereum Address:", wallet.address)
 
-    const Sender = await hre.ethers.getContractFactory("sender")
+    // const Sender = await hre.ethers.getContractFactory("sender")
 
-    const sender = await Sender.deploy()
-    await sender.deployed()
+    // const sender = await Sender.deploy()
+    // await sender.deployed()
 
-    console.log("sender  :", sender.address)
+    // console.log("sender  :", sender.address)
 
-    const SismoGlobalVerifier = await hre.ethers.getContractFactory("sismoGlobalVerifier")
-    let appId = "0x54c31943e929a55cbd8da2251dd3bc08"
-    const sismoGlobalVerifier = await SismoGlobalVerifier.deploy(appId)
-    await sismoGlobalVerifier.deployed()
+    // const SismoGlobalVerifier = await hre.ethers.getContractFactory("sismoGlobalVerifier")
+    // let appId = "0x54c31943e929a55cbd8da2251dd3bc08"
+    // const sismoGlobalVerifier = await SismoGlobalVerifier.deploy(appId)
+    // await sismoGlobalVerifier.deployed()
 
-    console.log("sismoGlobalVerifier  :", sismoGlobalVerifier.address)
+    // console.log("sismoGlobalVerifier  :", sismoGlobalVerifier.address)
 
     const OxForm = await hre.ethers.getContractFactory("OxForm")
 
-    const oxForm = await OxForm.deploy(sismoGlobalVerifier.address, sender.address)
-    await oxForm.deployed()
+    // const oxForm = await OxForm.deploy(sismoGlobalVerifier.address, sender.address)
+    // await oxForm.deployed()
 
-    console.log("oxForm  :", oxForm.address)
+    // console.log("oxForm  :", oxForm.address)
 
     // let mintPrice = 1
     // let submissionReward = 1
@@ -42,7 +42,7 @@ module.exports = async({ deployments }) => {
     // let EventMetadata = [formCID, name, category, formMetadataCID, formAdmin]
 
     // const OxFormInstance = OxForm.attach(oxForm.address)
-    //     // const OxFormInstance = OxForm.attach("0x2120a3D63ca0923C5eDb35684bbC7b9f40241441")
+    const OxFormInstance = OxForm.attach("0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7")
 
     // let tx = await OxFormInstance.formRequest(mintPrice, submissionReward, EventMetadata, [], {
     //     value: 10,
@@ -53,15 +53,15 @@ module.exports = async({ deployments }) => {
 
     // console.log("Form request Created")
 
-    // let sismoProof = "0x"
+    let sismoProof = "0x"
 
-    // tx = await OxFormInstance.formContribution(1, sismoProof, "dataCID", {
-    //     gasLimit: 10000000,
-    // })
+    let tx = await OxFormInstance.formContribution(1, sismoProof, "dataCID", {
+        gasLimit: 10000000,
+    })
 
-    // receipt = await tx.wait()
+    receipt = await tx.wait()
 
-    // console.log("Contribution Made ")
+    console.log("Contribution Made ")
 
     // //Minting the form with ID = 1
 

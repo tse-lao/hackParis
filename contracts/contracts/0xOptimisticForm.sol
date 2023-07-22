@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 import {OptimisticOracleV3CallbackRecipientInterface} from "./interfaces/OptimisticOracleV3CallbackRecipientInterface.sol";
+import {AncillaryData} from "@uma/core/contracts/common/implementation/AncillaryData.sol";
 import {OptimisticOracleV3Interface} from "./interfaces/OptimisticOracleV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interfaces/ISismoGlobalVerifier.sol";
@@ -11,7 +14,7 @@ import "./interfaces/ISismoStructs.sol";
 import "./interfaces/IEscalationManager.sol";
 import "./interfaces/ISender.sol";
 
-contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
+contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     /// @dev Will be used to resolve disputes on the delivery
     // Goerli
     OptimisticOracleV3Interface private optimisticOracleV3;
@@ -20,16 +23,29 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
 
     // TODO CUSTOM DIPUTE RESOLUTION MECHANISM
     IEscalationManager EscalationManager;
+
     ISender sender;
 
+    bytes32 public constant Identifier = "YES_OR_NO_QUERY";
+
     struct OptimisticFormInfo {
+        string formCID;
         uint256 mintPrice;
         uint256 formFunds;
+        uint256 bondAmount;
         uint64 resolutionDays;
         address tokenTreasury;
-        address tokenGateAddress;
-        TokenGateType tokenGateType;
-        bytes32[] assertions;
+        address bondCurrency;
+        // address tokenGateAddress;
+        // TokenGateType tokenGateType;
+    }
+
+    struct EventMetadata {
+        string name;
+        string description;
+        string category;
+        address[] requestAdmins;
+        ClaimRequest[] claims;
     }
 
     struct Contribution {
@@ -46,11 +62,28 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
         address tokenTreasury;
     }
 
+    struct assertionDetails {
+        uint256 formID;
+        bool assertionType;
+    }
+
     enum TokenGateType {
+        NONE,
         ERC20,
         ERC721,
         ERC1155
     }
+
+    event FormRequestCreated(
+        uint256 formID,
+        string name,
+        string description,
+        string category,
+        address[] admins
+    );
+
+    event contributionAssertionCreated(uint256 formID, bytes32 assertionID);
+
 
     using Counters for Counters.Counter;
 
@@ -61,6 +94,12 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
     mapping(uint256 => OptimisticFormInfo) private optimisticFormInfo;
 
     mapping(uint256 => ClaimRequest[]) public formRequiredClaims;
+
+    mapping(uint256 => bytes32[]) public formAssertions;
+
+    mapping(bytes32 => assertionDetails) assertionInfo;
+
+    mapping(bytes32 => Contribution) private assertionToContribution;
 
     
         // Goerli
@@ -73,6 +112,7 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
         // );
     constructor(ISismoGlobalVerifier _sismoVerifier, OptimisticOracleV3Interface _optimisticOracleV3,ISender _sender) ERC1155("") {
         sismoVerifier = _sismoVerifier;
+
         optimisticOracleV3 = _optimisticOracleV3;
         // To get used for sending funds on a contract viaCall
         sender = _sender;
@@ -86,24 +126,39 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
         EscalationManager = _EscalationManager;
     }
 
+
     function optimisticFormRequest(
-        string memory formCID,
-        string memory requestName,
-        string memory requestDescription,
-        string memory category,
-        uint256 mintPrice,
-        address[] memory requestAdmins,
-        ClaimRequest[] memory _claims
+        OptimisticFormInfo memory _optimisticFormInfo,
+        EventMetadata memory _eventMetadata
     ) public {
         formID.increment();
         uint256 _formID = formID.current();
+
+        optimisticFormInfo[_formID] = _optimisticFormInfo;
+        optimisticFormInfo[_formID].formFunds = 0;
+
         // TODO the request dataset workflow
-        for (uint i = 0; i < _claims.length; ) {
-            formRequiredClaims[_formID].push(_claims[i]);
+        for (uint i = 0; i < _eventMetadata.claims.length; ) {
+            formRequiredClaims[_formID].push(_eventMetadata.claims[i]);
             unchecked {
                 ++i;
             }
         }
+
+        for (uint i = 0; i < _eventMetadata.requestAdmins.length; ) {
+            _grantRole(getFormAdminRole(_formID), _eventMetadata.requestAdmins[i]);
+            unchecked {
+                ++i;
+            }
+        }
+
+        emit FormRequestCreated(
+            _formID,
+            _eventMetadata.name,
+            _eventMetadata.description,
+            _eventMetadata.category,
+            _eventMetadata.requestAdmins
+        );
     }
 
     function assertContribution(
@@ -120,8 +175,40 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
         uint256 _formID,
         Contribution memory contribution
     ) internal {
-        // TODO
-    }
+        OptimisticFormInfo storage form = optimisticFormInfo[_formID];
+        bytes memory assertedClaim = abi.encodePacked(
+            "Contribution on datasetID 0x",
+            AncillaryData.toUtf8BytesUint(_formID),
+            " with data : ",
+            contribution.contributionCID,
+            " with numebr of entries 0x",
+            AncillaryData.toUtf8BytesUint(contribution.rows),
+            " contributor address : 0x",
+            AncillaryData.toUtf8BytesAddress(contribution.contributor)
+        );
+
+        IERC20 bondCurrency = optimisticOracleV3.defaultCurrency();
+        uint256 bondAmount = optimisticOracleV3.getMinimumBond(address(bondCurrency));
+        if (bondAmount > 0) {
+            bondCurrency.approve(address(optimisticOracleV3), bondAmount);
+        }
+        bytes32 assertionID = optimisticOracleV3.assertTruth(
+            assertedClaim,
+            msg.sender,
+            address(this), // callback recipient
+            address(EscalationManager), // escalation manager
+            form.resolutionDays,
+            bondCurrency,
+            bondAmount,
+            Identifier,
+            bytes32(block.chainid)
+        );
+        formAssertions[_formID].push(assertionID);
+
+        assertionInfo[assertionID].formID = _formID;
+        assertionInfo[assertionID].assertionType = false;
+        assertionToContribution[assertionID] = contribution;
+        emit contributionAssertionCreated(_formID, assertionID);    }
 
     function assertDatasetTreasury(
         uint256 _formID,
@@ -177,6 +264,29 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
         _mint(msg.sender, _formID, 1, "");
     }
 
+       // To get used with lighthouse to encrypt a dataset
+    function hasAccess(address user, uint256 _formID) public view returns (bool) {
+        return requestAccess(user, _formID);
+    }
+
+    function requestAccess(address user, uint256 _formID) public view returns (bool) {
+        return
+            hasRole(getRequestContributorRole(_formID), user) ||
+            hasRole(getFormAdminRole(_formID), user) || balanceOf(user, _formID) > 0;
+    }
+
+    function requestAdmin(address user, uint256 _formID) public view returns (bool) {
+        return hasRole(getFormAdminRole(_formID), user);
+    }
+
+    function getFormAdminRole(uint256 _formID) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_formID, "REQUEST_ADMIN_ROLE"));
+    }
+
+    function getRequestContributorRole(uint256 _formID) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_formID, "REQUEST_CONTRIBUTOR_ROLE"));
+    }
+
     function totalSupply() public view returns (uint256) {
         return formID.current();
     }
@@ -187,5 +297,15 @@ contract OxOptimisticForm is Ownable, ERC1155, ISismoStructs {
             size := extcodesize(addr)
         }
         return size > 0;
+    }
+
+    
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(AccessControl, ERC1155) returns (bool) {
+        return interfaceId == type(ERC165).interfaceId;
     }
 }

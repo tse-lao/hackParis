@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import SismoGroup from "./SimsoGroup";
 import SismoSearch from "./SismoSearch";
-let cancelToken: CancelTokenSource;
+
 
 
 export default function UserRequirements({nextStep, addGroup, groups}: {nextStep: any, addGroup: (id: string) => void, groups: any}) {
@@ -86,19 +86,13 @@ export default function UserRequirements({nextStep, addGroup, groups}: {nextStep
     };
   }, []);
   
-  const handleSelectionChange = useCallback((badge: Badge, selected: boolean) => {
-    setGroupIDs(selected
-      ? [...groupIDs, badge.id]
-      : groupIDs.filter(b => b !== badge.id));
-      
-      console.log(groupIDs)
-    }, [groupIDs]);
 
   
 
 
   const handleSelect = useCallback((selected: any) => {
-    addGroup(selected.value);
+    //change the value to a claimREquest 
+    addGroup({...selected.value, claimType: 0, value: 1, isOptional: false, isSelectableByUser: true, extraData: "0x"});
   }, [addGroup]);
   
   return (

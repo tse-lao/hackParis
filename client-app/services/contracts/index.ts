@@ -2,7 +2,7 @@ import goerliFormABI from "./abi/goerli/form.json";
 
 const CONTRACTS = {
   goerli: {
-    FORM: "0x3074394e41FBa1b790767A229dD497e40B63A090",
+    FORM: "0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7",
   },
   mumbai: {
     FORM: "",

@@ -86,6 +86,7 @@ export class FormService {
         formAdmin: request.formAdmin,
       };
     });
+    
 
     return requests;
   }
@@ -95,6 +96,10 @@ export class FormService {
 
     for (let i = 0; i < forms.length; i++) {
       const contributions = await this.allContributionsByForm(forms[i].formID);
+      const readCID = await fetch(`https://ipfs.io/ipfs/${forms[i].formCID}`);
+      const data = await readCID.json();
+      forms[i].image = data.banner;
+      forms[i].description = data.formDetail.description;
       forms[i].totalContributions = contributions.length;
     }
 

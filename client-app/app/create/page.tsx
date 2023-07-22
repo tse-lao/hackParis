@@ -4,7 +4,6 @@ import FormLayout from "@/components/custom/form/FormLayout";
 import UploadBanner from "@/components/custom/form/UploadBanner";
 import UserRequirements from "@/components/custom/sismo/UserRequirements";
 import Steps from "@/components/custom/steps/Steps";
-import { Button } from "@/components/ui/button";
 import { ABI, CONTRACTS } from "@/services/contracts";
 import { storeFile } from "@/services/useNFTStorage";
 import { ClaimRequest, ClaimType } from "@sismo-core/sismo-connect-react";
@@ -18,8 +17,8 @@ export default function CreateForm() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type: "",
-    payee: "",
+    type: "auto",
+    payee: "user",
     resolution:  60 * 60 * 24 * 2, //in minutes
     reward: 0, //in wei
     groups: [] as ClaimRequest,
@@ -34,6 +33,11 @@ export default function CreateForm() {
     abi: ABI.mumbai.form,
     functionName: "formRequest",
   });
+  const { write: formRequestERC20 } = useContractWrite({
+    address: CONTRACTS.mumbai.form,
+    abi: ABI.mumbai.form,
+    functionName: "formRequestERC20",
+  });
   const { write: voteRequest } = useContractWrite({
     address: CONTRACTS.mumbai.form,
     abi: ABI.mumbai.form,
@@ -41,15 +45,15 @@ export default function CreateForm() {
   });
 
   const nextStep = (step: number) => {
+    if(step == -1){
+      submitForm();
+      return;
+    }
     console.log(step);
     setActiveStep(step);
   };
 
   const submitForm = async () => {
-    //make sure we can submit form here..
-    console.log(formData);
-    console.log(address);
-    console.log(formElements);
     let imageCID = "";
     if (image == "") {
       toast.error("Please upload a banner image");
@@ -66,61 +70,41 @@ export default function CreateForm() {
         console.log(result);
       });
 
-    let cid = "";
-    await toast
-      .promise(
-        storeFile(
-          JSON.stringify({
-            formDetail: formData,
-            formElements: formElements,
-            banner: imageCID,
-          })
-        ),
-        {
+    await toast.promise(
+        storeFile(JSON.stringify({formDetail: formData,formElements: formElements,banner: imageCID})),{
           pending: "Uploading to IPFS...",
           success: "Uploaded to IPFS!",
           error: "Failed to upload to IPFS",
-        }
-      )
+        })
       .then((result) => {
-        cid = result as string;
-        console.log(result);
         const category = "test";
         const metadata = [result, formData.name, category];
 
         const mintPrice = 0;
         const submissionReward = 0;
 
-        const sismoProof = [];
+        const sismoGroups = [];
         if (groups != undefined) {
           for (let i = 0; i < groups.length; i++) {
             if (groups[i] != undefined) {
-              sismoProof.push([
-                groups[i].id,
+              sismoGroups.push([
                 ClaimType.GTE,
+                groups[i].id,
                 "0x6c617465737400000000000000000000",
                 1,
                 false,
                 true,
-                "0x",
+                "0x000",
               ]);
             }
           }
         }
-
-        console.log(sismoProof);
         
-        //TODO: needs to be implement when its ready..
-        if(formData.type == "vote") {
-          voteRequest({
-            args: [mintPrice, submissionReward, metadata, sismoProof],
-          });
-          return;
-        }
         
-        formRequest({
-          args: [mintPrice, submissionReward, metadata, []],
-        });
+        if(formData.payee == "user") { formRequest({args: [mintPrice, submissionReward, metadata, sismoGroups]})}
+        
+        //formRequestERC20
+        if(formData.payee == "master") { formRequestERC20({args: [mintPrice, submissionReward, metadata, sismoGroups]})}
       });
   };
 
@@ -170,6 +154,12 @@ export default function CreateForm() {
       payee: payer,
     }));
   };
+  const removeGroup = (id: string) => {
+    console.log("remove group");
+    console.log(id);
+    let newGroups = groups?.filter((group) => group.id !== id);
+    setGroups(newGroups);
+  };
 
   const steps = [
     {
@@ -190,28 +180,31 @@ export default function CreateForm() {
       name: "User Requirements",
       component: (
         <UserRequirements
-          nextStep={console.log("nextStep")}
+          nextStep={nextStep}
           addGroup={addGroup}
           groups={groups}
+          removeGroup={removeGroup}
         />
       ),
     },
   ];
 
   const handleImageChange = (e: any) => {
+    if(!e) {
+      setImage(""); return;
+    }
+    
     if (e.target.files && e.target.files[0]) {
-      let img = URL.createObjectURL(e.target.files[0]);
-      setImage(img);
+      setImage(e.target.files[0]);
     }
   };
+  
+  
 
   return (
-    <div className="flex flex-col items-center justify-center mt-4 p-24">
+    <div className="flex flex-col items-center justify-center px-24">
+      <Steps steps={steps} activeStep={activeStep} nextStep={nextStep} />
       <UploadBanner handleImage={handleImageChange} image={image} />
-      <div className="flex flex-row gap-5 items-center">
-        <Steps steps={steps} activeStep={activeStep} nextStep={nextStep} />
-        <Button onClick={submitForm}>Submit </Button>
-      </div>
 
       <div className="mt-10">{steps[activeStep].component}</div>
     </div>

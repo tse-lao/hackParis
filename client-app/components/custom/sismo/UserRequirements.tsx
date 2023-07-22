@@ -2,15 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/types";
 import axios, { CancelTokenSource } from 'axios';
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 import SismoGroup from "./SimsoGroup";
 import SismoSearch from "./SismoSearch";
 
 
 
-export default function UserRequirements({nextStep, addGroup, groups}: {nextStep: any, addGroup: (id: string) => void, groups: any}) {
-  const [groupIDs, setGroupIDs] = useState<string[]>([]);
+export default function UserRequirements({nextStep, addGroup, groups, removeGroup}: {nextStep: any, addGroup: (id: string) => void, groups: any, removeGroup:any}) {
   let cancelToken: CancelTokenSource;
   
   const loadOptions = useCallback(async (inputValue: string) => {    // Prepare the GraphQL query and variables
@@ -95,6 +94,8 @@ export default function UserRequirements({nextStep, addGroup, groups}: {nextStep
     addGroup({...selected.value, claimType: 0, value: 1, isOptional: false, isSelectableByUser: true, extraData: "0x"});
   }, [addGroup]);
   
+ 
+  
   return (
     <div className="p-4 rounded-md flex flex-col gap-4 w-[600px]">
       <SismoSearch loadOptions={loadOptions} onSelect={handleSelect} />
@@ -106,14 +107,14 @@ export default function UserRequirements({nextStep, addGroup, groups}: {nextStep
         <SismoGroup
             key={group.id} 
             group={group} 
-        
+            removeGroup={removeGroup}
         />
       ))}
       </div>
       <Button
         onClick={(e) => {
           e.preventDefault();
-          nextStep(3);
+          nextStep(-1)
         }}
         >
           Continue

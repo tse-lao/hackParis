@@ -1,22 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PlaneIcon } from "lucide-react"
 
 
 
 
-export default function TemplateCard({link, title, description}: {link: string, title: string, description: any}){
+export default function TemplateCard({ data}: {data: any}){
     return (
-        
-            <Card className="hover:border-purple-600">
-                    <CardHeader>
-                    <CardTitle>
-                        {title}
-                    </CardTitle>
-                    </CardHeader>
-                    <CardContent className="h-[150px]">
-                        {description}
-                    </CardContent>
-                    
-                </Card>
-
+        <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium uppercase">
+            {data.title}
+          </CardTitle>
+        {data.icon ? data.icon : <PlaneIcon />}
+        </CardHeader>
+        <CardContent className="my-4">
+          <div className="text-2xl font-bold">{data.description}</div>
+        </CardContent>
+      </Card>
     )
 }

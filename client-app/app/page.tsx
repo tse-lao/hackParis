@@ -1,42 +1,45 @@
 
 import TemplateCard from '@/components/custom/TemplateCard'
 import CheckXMTP from '@/components/custom/extra/CheckXMTP'
+import LighthouseCheck from '@/components/custom/extra/LighthouseCheck'
 import Worldcoin from '@/components/custom/worldcoin/Worldcoin'
+import { EyeOff, SendIcon, StoreIcon, UserCheck } from 'lucide-react'
 
 const templates = [
-  {
-    link: "/form",
-    title: "Forms",
-    description: "An overview of all the forms that are available on the platform.",
-  }, 
-  {
-    link: "/create",
-    title: "create",
-    description: "We will help you create your unique form here. ",
-  }, 
   {
     link: "#",
     title: "XMTP Connect",
     description: <CheckXMTP />,
+    icon: <SendIcon />
   }, 
   {
   link: "#",
-  title: "Wordcoin",
+  title: "Worldcoin",
   description: <Worldcoin />,
+  icon: <UserCheck />
+}, 
+{
+  link: "#",
+  title: "Lighthouse",
+  description: <LighthouseCheck />,
+  icon: <StoreIcon />
+},
+{
+  link: "#",
+  title: "PrivacyScore",
+  description: <LighthouseCheck />,
+  icon: <EyeOff />
 }
 ]
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-       <div className="flex items-center justify-center mt-20 p-24">
-        <div className="grid grid-cols-3 gap-4 items-center content-stretch">
+    <main className="flex min-h-screen flex-col items-center justify-between">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {templates.map((template, index) => (
-                <TemplateCard key={index} link={template.link} title={template.title} description={template.description} />
+                <TemplateCard key={index} data={template} />
             ))}
-
-        </div>
-    </div>
+      </div>
     </main>
   )
 }

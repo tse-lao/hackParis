@@ -25,7 +25,7 @@ module.exports = async({ deployments }) => {
 
     // console.log("sismoGlobalVerifier  :", sismoGlobalVerifier.address)
 
-    const OxForm = await hre.ethers.getContractFactory("OxForm")
+    // const OxForm = await hre.ethers.getContractFactory("OxForm")
 
     // const oxForm = await OxForm.deploy(sismoGlobalVerifier.address, sender.address)
     // await oxForm.deployed()
@@ -42,7 +42,7 @@ module.exports = async({ deployments }) => {
     // let EventMetadata = [formCID, name, category, formMetadataCID, formAdmin]
 
     // const OxFormInstance = OxForm.attach(oxForm.address)
-    const OxFormInstance = OxForm.attach("0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7")
+    // const OxFormInstance = OxForm.attach("0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7")
 
     // let tx = await OxFormInstance.formRequest(mintPrice, submissionReward, EventMetadata, [], {
     //     value: 10,
@@ -53,15 +53,15 @@ module.exports = async({ deployments }) => {
 
     // console.log("Form request Created")
 
-    let sismoProof = "0x"
+    // let sismoProof = "0x"
 
-    let tx = await OxFormInstance.formContribution(1, sismoProof, "dataCID", {
-        gasLimit: 10000000,
-    })
+    // let tx = await OxFormInstance.formContribution(1, sismoProof, "dataCID", {
+    //     gasLimit: 10000000,
+    // })
 
-    receipt = await tx.wait()
+    // receipt = await tx.wait()
 
-    console.log("Contribution Made ")
+    // console.log("Contribution Made ")
 
     // //Minting the form with ID = 1
 

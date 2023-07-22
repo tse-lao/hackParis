@@ -34,7 +34,7 @@ contract WorldcoinSoulboundToken is ERC721 {
         IWorldID worldId,
         string memory _appId,
         string memory _actionId
-    ) ERC721("WorldcoinSoulboundToken", "WSBT") {
+    ) ERC721("WorldcoinHumanSoulboundToken", "WHST") {
         _worldId = worldId;
 
         _externalNullifier = abi
@@ -69,10 +69,15 @@ contract WorldcoinSoulboundToken is ERC721 {
 
         // We now record the user has done this, so they can't do it again (proof of uniqueness)
         nullifierHashes[nullifierHash] = true;
+
         _mint(msg.sender, tokenID.current());
 
         // Finally, execute your logic here, for example issue a token, NFT, etc...
         // Make sure to emit some kind of event afterwards!
+    }
+
+    function tokenURI(uint256 tokenId) public override view returns(string memory){
+        return "https://gateway.lighthouse.storage/ipfs/QmdyNTa7tTtvsV1ADtpVwghACFa5rLEBj7xKXDJwMJeE7m";
     }
 
     function _beforeTokenTransfer(

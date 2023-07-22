@@ -96,8 +96,8 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     mapping(bytes32 => Contribution) private assertionToContribution;
 
     
-        // Goerli  0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
-        // Mumbai 0x263351499f82C107e540B01F0Ca959843e22464a
+    // Goerli  0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
+    // Mumbai 0x263351499f82C107e540B01F0Ca959843e22464a
     constructor(ISismoGlobalVerifier _sismoVerifier, OptimisticOracleV3Interface _optimisticOracleV3,ISender _sender) ERC1155("") {
         
         sismoVerifier = _sismoVerifier;

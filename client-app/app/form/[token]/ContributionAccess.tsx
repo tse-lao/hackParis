@@ -25,11 +25,12 @@ import { SismoProof } from "./SismoProof";
   interface ContributionAccessProps {
       nextStep: (step: number) => void
       getProof: (proof: string) => void
+      claims: any
   }
    
-  const ContributionAccess: FC<ContributionAccessProps> = ({nextStep, getProof}) => {
+  const ContributionAccess: FC<ContributionAccessProps> = ({nextStep, getProof, claims}) => {
     
-      
+      console.log(claims);
     
       return (
       <div className="flex flex-col gap-4">
@@ -43,7 +44,7 @@ import { SismoProof } from "./SismoProof";
           </ul>
           
       </div>
-        <SismoProof data={{auths: AUTHS, claims:CLAIMS}} nextStep={nextStep} getProof={getProof}/>
+        <SismoProof data={{auths: AUTHS, claims:claims}} nextStep={nextStep} getProof={getProof}/>
       </div>
       
       );

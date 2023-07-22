@@ -31,7 +31,8 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, IConstants {
         string dataFormatCID,
         uint256 requiredEntries,
         uint256 minSubRows,
-        address creator
+        address creator,
+        string claimGroups
     );
 
     event contributionAssertionCreated(uint256 formID, bytes32 assertionID);
@@ -121,7 +122,8 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, IConstants {
         string memory requestDescription,
         FormDetails memory _details,
         ClaimRequest[] memory _claims,
-        address[] memory formAdmins
+        address[] memory formAdmins,
+        string memory claimGroups
     ) public {
         require(_details.requiredEntries > 0);
         formID.increment();
@@ -151,7 +153,8 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, IConstants {
             dataFormatCID,
             _details.requiredEntries,
             _details.minSubRows,
-            msg.sender
+            msg.sender,
+            claimGroups
         );
     }
 
@@ -161,6 +164,9 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, IConstants {
         ClaimRequest[] memory claims = new ClaimRequest[](size);
         for(uint256 i = 0; i < size;){
             claims[i] = optimisticFormInfo[_formID].requestRequiredClaims[i];
+            unchecked {
+                ++i;
+            }
         }
         return claims;
     }
@@ -204,7 +210,7 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, IConstants {
         if (bondAmount > 0) {
             bondCurrency.approve(address(optimisticOracleV3), bondAmount);
         }
-        
+
         bytes32 assertionID = optimisticOracleV3.assertTruth(
             assertedClaim,
             msg.sender,

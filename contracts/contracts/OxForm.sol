@@ -230,6 +230,9 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         ClaimRequest[] memory claims = new ClaimRequest[](size);
         for(uint256 i = 0; i < size;){
             claims[i] = formRequiredClaims[_formID][i];
+            unchecked {
+                ++i;
+            }
         }
         return claims;
     }

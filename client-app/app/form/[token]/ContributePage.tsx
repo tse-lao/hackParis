@@ -14,7 +14,6 @@ import ContributionForm from "./ContributionForm";
 const steps = [
     { id: 0, name: 'Access' },
     { id: 1, name: 'Contribution Form' },
-    { id: 2, name: 'Review Submission' },
 ];
 
 interface ContributePageProps {
@@ -64,13 +63,13 @@ const ContributePage: FC<ContributePageProps> = ({data}) => {
       setActiveStep(step);
     }, [proof]);
     
-    const handleProof = (proof: string) => {
+    const handleProof = useCallback((proof: string) => {
     if(!proof) return;
       setProof(proof);
       console.log(proof);
       
       
-    };
+    }, []);
   
     const handleData = useCallback((formResult: any) => {
       setFormData(formResult);

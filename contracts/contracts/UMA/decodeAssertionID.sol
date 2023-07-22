@@ -3,7 +3,7 @@
 pragma solidity ^0.8.17;
 
 library decodeAssertionID {
-    function extractAssertionId(bytes memory data) internal pure returns (bytes32) {
+function extractAssertionId(bytes memory data) internal pure returns (bytes32) {
         bytes memory key = ":";
         uint256 startIdx = findKeyIndex(data, key);
         require(startIdx > 0, "Assertion ID not found in ancillary data");

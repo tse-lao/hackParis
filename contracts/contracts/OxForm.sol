@@ -17,6 +17,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
     struct FormInfo {
         uint256 mintPrice;
+        bool mintable;
         uint256 escrowAmount;
         uint256 submitionReward;
         address tokenTreasury;
@@ -29,6 +30,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         string formCID;
         string name;
         string category;
+        string claimsGroups;
     }
 
     event FormRequestCreated(
@@ -37,8 +39,10 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         string category,
         string formCID,
         uint256 submitionReward,
+        uint256 mintPrice,
         IERC20 rewardToken,
-        address formAdmin
+        address formAdmin,
+        string claimGroups
     );
 
     event ContributionCreated(uint256 formID, string contributionCID, address contributor);
@@ -61,6 +65,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     function formRequest(
         uint256 mintPrice,
         uint256 submitionReward,
+        bool mintable,
         EventMetadata memory eventMetadata,
         ClaimRequest[] memory _claims
     ) external payable {
@@ -71,7 +76,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
         uint256 _formID = formID.current();
         // Native blockchain token request 
-        formInfo[_formID] = FormInfo(mintPrice, msg.value, submitionReward, msg.sender, IERC20(address(0)), eventMetadata.formCID);
+        formInfo[_formID] = FormInfo(mintPrice, mintable, msg.value, submitionReward, msg.sender, IERC20(address(0)), eventMetadata.formCID);
 
         for (uint i = 0; i < _claims.length; ) {
             formRequiredClaims[_formID].push(_claims[i]);
@@ -88,8 +93,10 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             eventMetadata.category,
             eventMetadata.formCID,
             submitionReward,
+            mintPrice,
             IERC20(address(0)),
-            msg.sender
+            msg.sender,
+            eventMetadata.claimsGroups
         );
     }
 
@@ -98,6 +105,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         uint256 submitionReward,
         uint256 valueTransferAmount,
         address tokenTreasury,
+        bool mintable,
         IERC20 rewardToken,
         EventMetadata memory eventMetadata,
         ClaimRequest[] memory _claims
@@ -111,7 +119,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
         uint256 _formID = formID.current();
         // Native blockchain token request 
-        formInfo[_formID] = FormInfo(mintPrice, valueTransferAmount, submitionReward, tokenTreasury, rewardToken, eventMetadata.formCID);
+        formInfo[_formID] = FormInfo(mintPrice, mintable, valueTransferAmount, submitionReward, tokenTreasury, rewardToken, eventMetadata.formCID);
 
         for (uint i = 0; i < _claims.length; ) {
             formRequiredClaims[_formID].push(_claims[i]);
@@ -128,8 +136,10 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             eventMetadata.category,
             eventMetadata.formCID,
             submitionReward,
+            mintPrice,
             rewardToken,
-            msg.sender
+            msg.sender,
+            eventMetadata.claimsGroups
         );
     }
 
@@ -172,6 +182,7 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     }
 
     function mint(uint256 _formID) external payable exists(_formID) {
+        require(formInfo[_formID].mintable);
         uint256 mintPrice = formInfo[_formID].mintPrice;
         require(mintPrice == msg.value, "wrong price");
         address payable to = payable(formInfo[_formID].tokenTreasury);
@@ -182,6 +193,10 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             to.transfer(msg.value);
         }
         _mint(msg.sender, _formID, 1, "");
+    }
+
+    function changeFormStatus(uint256 _formID, bool isMintable) external onlyRole(getFormAdminRole(_formID)){
+        formInfo[_formID].mintable = isMintable;
     }
 
     function changeTreasuryAddress(uint256 _formID, address _newTokenTreasuryAddress)external onlyRole(getFormAdminRole(_formID)){
@@ -208,6 +223,15 @@ contract OxForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
     function getUserContributions(address user) public view returns (uint256) {
         return userContributions[user];
+    }
+
+    function getFormClaims(uint256 _formID) public view returns (ClaimRequest[] memory) {
+        uint256 size = formRequiredClaims[_formID].length;
+        ClaimRequest[] memory claims = new ClaimRequest[](size);
+        for(uint256 i = 0; i < size;){
+            claims[i] = formRequiredClaims[_formID][i];
+        }
+        return claims;
     }
 
     function isContract(address addr) internal view returns (bool) {

@@ -17,9 +17,9 @@ import "./decodeAssertionID.sol";
  * @dev If nothing is configured using the setters and configureEscalationManager method upon deployment, the
  * FullPolicyEscalationManager will return a default policy with all values set to false.
  */
-contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownable {
+contract OxFormEscalationManager is EscalationManagerInterface, Ownable {
     OptimisticOracleV3Interface public immutable optimisticOracleV3;
-    IOptimisticForm public immutable OxOptimisticFormContract;
+    IOptimisticForm public immutable OptimisticForm;
     // Struct to store the arbitration resolution for a given identifier, time, and ancillary data.
     struct ArbitrationResolution {
         bool valueSet; // True if the resolution has been set.
@@ -64,16 +64,22 @@ contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownabl
 
     mapping(bytes32 => ArbitrationResolution) public arbitrationResolutions; // Arbitration resolutions for a given identifier, time, and ancillary data.
 
+    mapping(bytes32 => uint256) private assertionToRequestID;
+
+    mapping(uint256 => requestRules) public requestAccessRules;
+
     // /**
     //  * @notice Constructs the escalation manager.
     //  * @param _optimisticOracleV3 the Optimistic Oracle V3 to use.
     //  */
-    // goerli 0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
-    // mumbai 0x263351499f82C107e540B01F0Ca959843e22464a
-    constructor(IOptimisticForm _OxOptimisticFormContract, OptimisticOracleV3Interface _optimisticOracleV3) {
-        OxOptimisticFormContract = _OxOptimisticFormContract;
-
-        optimisticOracleV3 = _optimisticOracleV3;
+    constructor(IOptimisticForm _OptimisticForm) {
+        optimisticOracleV3 = OptimisticOracleV3Interface(
+            // goerli
+            // 0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
+            // mumbai
+            0x263351499f82C107e540B01F0Ca959843e22464a
+        );
+        OptimisticForm = _OptimisticForm;
     }
 
     /**
@@ -131,9 +137,8 @@ contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownabl
     ) public view returns (bool) {
         if (assertionId != bytes32(0)) {
             return
-                disputeCaller == address(OxOptimisticFormContract);
+                disputeCaller == address(OptimisticForm);
         }
-        return false;
     }
 
     /**
@@ -150,7 +155,7 @@ contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownabl
     ) public onlyOptimisticOracleV3 {
         emit PriceRequestAdded(identifier, time, ancillaryData);
         bytes32 assertionId = decodeAssertionID.extractAssertionId(ancillaryData);
-        OxOptimisticFormContract.startResolutionVoting(assertionId, identifier, time, ancillaryData);
+        OptimisticForm.startResolutionVoting(assertionId, identifier, time, ancillaryData);
     }
 
     /**
@@ -200,7 +205,7 @@ contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownabl
         uint256 time,
         bytes memory ancillaryData,
         bool arbitrationResolution
-    ) public onlyOxOptimisticFormContract {
+    ) public onlyOptimisticForm {
         bytes32 requestId = getRequestId(identifier, time, ancillaryData);
         require(
             arbitrationResolutions[requestId].valueSet == false,
@@ -232,7 +237,7 @@ contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownabl
             assertionId
         );
         return (blockByAssertingCaller &&
-            (address(OxOptimisticFormContract) != assertion.escalationManagerSettings.assertingCaller));
+            (address(OptimisticForm) != assertion.escalationManagerSettings.assertingCaller));
         // THIS OR IS HANDLED BY THE ZKTREEDATASET CONTRACT SO THERE IS NO NEED IF ONLY ASSERTION CALLER CAN BE THE
         // ZKTREEDATASETS CONTRACT
         //      ||
@@ -260,8 +265,8 @@ contract OxOptimisticFormEscalationManager is EscalationManagerInterface, Ownabl
         _;
     }
 
-    modifier onlyOxOptimisticFormContract() {
-        require(msg.sender == address(OxOptimisticFormContract));
+    modifier onlyOptimisticForm() {
+        require(msg.sender == address(OptimisticForm));
         _;
     }
 }

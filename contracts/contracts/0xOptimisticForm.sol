@@ -35,7 +35,7 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         uint256 bondAmount;
         uint64 resolutionDays;
         address tokenTreasury;
-        address bondCurrency;
+        IERC20 bondCurrency;
         // address tokenGateAddress;
         // TokenGateType tokenGateType;
     }
@@ -53,13 +53,6 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         address contributor;
         string contributionCID;
         uint256 rows;
-    }
-
-    struct Dataset {
-        uint256 formID;
-        string datasetCID;
-        uint256 mintPrice;
-        address tokenTreasury;
     }
 
     struct assertionDetails {
@@ -82,8 +75,9 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         address[] admins
     );
 
-    event contributionAssertionCreated(uint256 formID, bytes32 assertionID);
+    event ContributionAssertionCreated(uint256 formID, bytes32 assertionID);
 
+    event DatasetTreasuryAssertionCreated(uint256 datasetID, bytes32 assertionID);
 
     using Counters for Counters.Counter;
 
@@ -102,15 +96,10 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
     mapping(bytes32 => Contribution) private assertionToContribution;
 
     
-        // Goerli
-        // optimisticOracleV3 = OptimisticOracleV3Interface(
-        //     0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
-        // );
-        // Mumbai
-        // optimisticOracleV3 = OptimisticOracleV3Interface(
-        //     0x263351499f82C107e540B01F0Ca959843e22464a
-        // );
+        // Goerli  0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB
+        // Mumbai 0x263351499f82C107e540B01F0Ca959843e22464a
     constructor(ISismoGlobalVerifier _sismoVerifier, OptimisticOracleV3Interface _optimisticOracleV3,ISender _sender) ERC1155("") {
+        
         sismoVerifier = _sismoVerifier;
 
         optimisticOracleV3 = _optimisticOracleV3;
@@ -187,8 +176,8 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
             AncillaryData.toUtf8BytesAddress(contribution.contributor)
         );
 
-        IERC20 bondCurrency = optimisticOracleV3.defaultCurrency();
-        uint256 bondAmount = optimisticOracleV3.getMinimumBond(address(bondCurrency));
+        IERC20 bondCurrency = form.bondCurrency;
+        uint256 bondAmount = form.bondAmount;
         if (bondAmount > 0) {
             bondCurrency.approve(address(optimisticOracleV3), bondAmount);
         }
@@ -208,18 +197,63 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         assertionInfo[assertionID].formID = _formID;
         assertionInfo[assertionID].assertionType = false;
         assertionToContribution[assertionID] = contribution;
-        emit contributionAssertionCreated(_formID, assertionID);    }
+        emit ContributionAssertionCreated(_formID, assertionID);    
+    }
 
     function assertDatasetTreasury(
         uint256 _formID,
         address tokenTreasury
     ) public exists(_formID) {
-        // fUNCTION TO ASSERT IF A DATASET IS BUILDED IN A FAIR WAY
-        // TODO Contributors and Admins will be able to dispute
+        OptimisticFormInfo storage form = optimisticFormInfo[_formID];
+
+        bytes memory assertedClaim = abi.encodePacked(
+            "Asserting on formID 0x",
+            AncillaryData.toUtf8BytesUint(_formID),
+            "the splitter treasury contract with address : 0x",
+            AncillaryData.toUtf8BytesAddress(tokenTreasury),
+            "to get used us the contributors revenue mechanism"
+        );
+
+        IERC20 bondCurrency = form.bondCurrency;
+        uint256 bondAmount = form.bondAmount;
+
+        if (bondAmount > 0) {
+            bondCurrency.approve(address(optimisticOracleV3), bondAmount);
+        }
+        bytes32 assertionID = optimisticOracleV3.assertTruth(
+            assertedClaim,
+            msg.sender,
+            address(this), // callback recipient
+            address(EscalationManager), // escalation manager
+            form.resolutionDays,
+            bondCurrency,
+            bondAmount,
+            Identifier,
+            bytes32(block.chainid)
+        );
+
+        formAssertions[_formID].push(assertionID);
+
+        form.tokenTreasury = tokenTreasury;
+
+        assertionInfo[assertionID].formID = _formID;
+        assertionInfo[assertionID].assertionType = true; // TRUE <= Dataset Creation Assertion
+        emit DatasetTreasuryAssertionCreated(_formID, assertionID);
     }
 
     /// @dev Dispute
-    function disputeAssertion(bytes32 assertionId) external {}
+    function disputeAssertion(bytes32 assertionId) external {
+        require(isDisputeAllowed(assertionId, msg.sender), "anothorized");
+        uint256 _formID = assertionInfo[assertionId].formID;
+
+        IERC20 bondCurrency = optimisticFormInfo[_formID].bondCurrency;
+        uint256 bondAmount = optimisticFormInfo[_formID].bondAmount;
+        if (bondAmount > 0) {
+            bondCurrency.approve(address(optimisticOracleV3), bondAmount);
+        }
+        optimisticOracleV3.disputeAssertion(assertionId, msg.sender);
+
+    }
 
     // /// @dev UMA assertions callback
     function assertionResolvedCallback(
@@ -271,8 +305,8 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
 
     function requestAccess(address user, uint256 _formID) public view returns (bool) {
         return
-            hasRole(getRequestContributorRole(_formID), user) ||
-            hasRole(getFormAdminRole(_formID), user) || balanceOf(user, _formID) > 0;
+            hasRole(getFormAdminRole(_formID), user) ||
+            hasRole(getFormContributorRole(_formID), user) || balanceOf(user, _formID) > 0;
     }
 
     function requestAdmin(address user, uint256 _formID) public view returns (bool) {
@@ -283,12 +317,23 @@ contract OxOptimisticForm is Ownable, ERC1155, AccessControl, ISismoStructs {
         return keccak256(abi.encodePacked(_formID, "REQUEST_ADMIN_ROLE"));
     }
 
-    function getRequestContributorRole(uint256 _formID) public pure returns (bytes32) {
+    function getFormContributorRole(uint256 _formID) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_formID, "REQUEST_CONTRIBUTOR_ROLE"));
     }
 
     function totalSupply() public view returns (uint256) {
         return formID.current();
+    }
+
+    function isDisputeAllowed(bytes32 assertionID, address disputer) public view returns (bool) {
+        uint256 _formID = assertionInfo[assertionID].formID;
+        if (
+            hasRole(getFormAdminRole(_formID), disputer) ||
+            hasRole(getFormContributorRole(_formID), disputer)
+        ) {
+            return true;
+        }
+        return false;
     }
 
     function isContract(address addr) internal view returns (bool) {

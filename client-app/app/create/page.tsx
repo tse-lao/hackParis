@@ -93,11 +93,11 @@ export default function CreateForm() {
               sismoGroups.push([
                 ClaimType.GTE,
                 groups[i].id,
-                "0x6c617465737400000000000000000000",
+                "0x6c61746573740000000000000000000",
                 1,
                 false,
                 true,
-                "0x000",
+                "0x00",
               ]);
             }
           }

@@ -21,11 +21,10 @@ export class FormController {
     console.log(`in get contributions by user controller: ${creator}`);
     return this.svc.getFormByCreator(creator);
   }
-  
+
   @Get('getContributionsByUser')
   async getContributionsByUser(@Query('contributor') contributor: string) {
     console.log(`in get contributions by user controller: ${contributor}`);
     return this.svc.getContributionsByUser(contributor);
   }
-
 }

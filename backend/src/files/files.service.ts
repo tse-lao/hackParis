@@ -42,7 +42,7 @@ export class FilesServices {
     console.log(response);
     //preferably we have accessControl here based on the status of the tokenID in the contract.
     await lighthouse.shareFile(address, [creator], response.data.Hash, token);
-    
+
     await this.applyAccessControl(token, tokenID, address, response.data.Hash);
     console.log('shared file with creator of the form');
     fs.unlinkSync(tempPath);
@@ -50,8 +50,13 @@ export class FilesServices {
     return response.data.Hash;
   }
 
-  async applyAccessControl(jwt: string, tokenID: number, address: string, cid: string) {
-    const CONTRACT_ADDRESS = "";
+  async applyAccessControl(
+    jwt: string,
+    tokenID: number,
+    address: string,
+    cid: string,
+  ) {
+    const CONTRACT_ADDRESS = '0x95F59D962432b44c2BcbcE1cfa7B514c78e03CB4';
     const conditions = [
       {
         id: 1,
@@ -71,7 +76,6 @@ export class FilesServices {
 
     const aggregator = '([1])';
 
-
     const response = await lighthouse.applyAccessCondition(
       address,
       cid,
@@ -79,7 +83,7 @@ export class FilesServices {
       conditions,
       aggregator,
     );
-    
+
     console.log(response);
   }
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Assertion = {
@@ -19,23 +19,6 @@ export type Assertion = {
   expirationTime: number;
   currency: any;
   bond: number;
-  disputer: any;
-  settlementPayout: number;
-  settlementRecipient: any;
-  settlementResolution: boolean;
-  assertionTimestamp: number;
-  assertionBlockNumber: number;
-  assertionHash: any;
-  assertionLogIndex: number;
-  disputeTimestamp: number;
-  disputeBlockNumber: number;
-  disputeHash: any;
-  disputeLogIndex: number;
-  settlementTimestamp: number;
-  settlementBlockNumber: number;
-  settlementHash: any;
-  settlementLogIndex: number;
-  status: string;
 };
 
 export const assertionColumn: ColumnDef<Assertion>[] = [
@@ -77,38 +60,21 @@ export const assertionColumn: ColumnDef<Assertion>[] = [
     id: "actions",
     cell: ({ row }) => {
       const assertion = row.original;
-      const toast = useToast();
+
 
       //we can implement it here. s
       const handleDispute = async () => {
         console.log("dispute")
-        toast({
-          title: "Dispute",
-          description: "Dispute",
-        })
+        toast.info("Dispute submitted")
       }
 
-      switch (assertion.status) {
-        case "disputing":
-          return (
-            <div className="flex gap-4">
+        return(
+          <div className="flex gap-4">
               <Button>UP</Button>
               <Button>Down</Button>
             </div>
-          );
-        case "open":
-          return (
-            <Button onClick={handleDispute}>Dispute</Button>
-          );
-        case "ready":
-          return (
-            <Button onClick={handleDispute}>Execute</Button>
-          );
-        default:
-          return (
-            <Button>Finished</Button>
-          );  
-          }
+        )
+
     },
   },
 ];

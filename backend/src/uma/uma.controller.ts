@@ -10,10 +10,10 @@ export class UmaController {
     console.log(`get the first 20 assertions :`);
     return this.svc.getAssertions();
   }
-  @Get('getDisputes')
-  async getDisputes() {
+  @Get('getAllAssertions')
+  async getAllAssertions() {
     console.log(`get the first 20 dipsutes :`);
-    return this.svc.getDisputes();
+    return this.svc.getAllAssertions();
   }
   @Get('getAssertionSettled')
   async getAssertionSettled() {

@@ -33,17 +33,17 @@ const CONFIG_SISMO = {
   
   
   interface ContributionAccessProps {
-      nextStep: (step: number) => void
-      getProof: (proof: string) => void
-      claims: any
+      nextStep: any
+      getProof: any;
+      claims: any;
   }
 
    
-  const ContributionAccess: FC<ContributionAccessProps> = ({nextStep, getProof, claims}) => {
+  const ContributionAccess: FC<ContributionAccessProps> = ({getProof,nextStep, claims}) => {
     const { address } = useAccount();
     const [loading, setLoading] = useState(false);
     const { sismoConnect, responseBytes: sismoProof } = useSismoConnect(CONFIG_SISMO);
-
+    
 
       const onSismoConnect = () => {
         if (!address) {
@@ -52,7 +52,10 @@ const CONFIG_SISMO = {
     
     
         setLoading(true);
-       
+        for(let i = 0; i < claims.length; i++) {
+          claims[i].value = claims[i].value.toString();
+          claims[i].groupTimestamp = null;
+        }
     
         sismoConnect.request({
           auths: AUTHS,
@@ -62,13 +65,14 @@ const CONFIG_SISMO = {
         setLoading(false);
       };
       
-      useEffect(() => {
 
+      
+      useEffect(() => {
         if (sismoProof) {
           getProof(sismoProof);
         }
-    
-      }, [sismoProof]);
+      }, [sismoProof, getProof]);
+      
     
       return (
       <div className="flex flex-col gap-4">
@@ -83,7 +87,7 @@ const CONFIG_SISMO = {
           
       </div>
       {sismoProof ? (
-        <Button disabled={loading} onClick={() => getProof(sismoProof)} >
+        <Button disabled={loading} onClick={() => nextStep(1)} >
           Proof accepted | continue
         </Button >
       ) : (

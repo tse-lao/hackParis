@@ -10,6 +10,8 @@ interface SearchBarProps {
 
 const SismoSearch: React.FC<SearchBarProps> = ({ loadOptions, onSelect }) => {
   return (
+    <>
+    <span>Search group in SISMO</span>
     <AsyncSelect
       cacheOptions
       defaultOptions
@@ -17,6 +19,8 @@ const SismoSearch: React.FC<SearchBarProps> = ({ loadOptions, onSelect }) => {
       onChange={onSelect as any}
       select-option={onSelect as any}
     />
+    </>
+    
   );
 };
 

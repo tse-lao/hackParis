@@ -1,18 +1,18 @@
-export type Form = {
-    formID:number
-    formCID:string
-    category:string
-    name:string
-    rewardToken:string
-    submitionReward:string
-    formAdmin:string
-    contributions: Contribution[] | []
-    totalContributions: number
-    form?: any
-    description?: string
-    image?: string
-    
-  }
+export interface RequestCreated {
+  id: any;
+  formID: number;
+  requestName: string;
+  requestDescription: string;
+  category: string;
+  dataFormatCID: string;
+  requiredEntries: number;
+  minSubRows: number;
+  creator: any;
+  claimGroups: string;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: any;
+}
 export type Contribution = {
     dataCID: string
     contributor: string

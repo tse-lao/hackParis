@@ -10,23 +10,22 @@ export interface ApprovalForAll {
 
 export interface ContributionCreated {
   id: any;
+  assertionId: any;
   formID: number;
   contributionCID: string;
+  rows: number;
   contributor: any;
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: any;
 }
 
-export interface FormRequestCreated {
+export interface DatasetCreated {
   id: any;
-  formID: number;
-  name: string;
-  category: string;
+  tokenId: number;
   formCID: string;
-  submitionReward: number;
-  rewardToken: any;
-  formAdmin: any;
+  mintPrice: number;
+  tokenTreasury: any;
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: any;
@@ -36,6 +35,22 @@ export interface OwnershipTransferred {
   id: any;
   previousOwner: any;
   newOwner: any;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: any;
+}
+
+export interface RequestCreated {
+  id: any;
+  formID: number;
+  requestName: string;
+  requestDescription: string;
+  category: string;
+  dataFormatCID: string;
+  requiredEntries: number;
+  minSubRows: number;
+  creator: any;
+  claimGroups: string;
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: any;
@@ -76,8 +91,8 @@ export interface TransferBatch {
   operator: any;
   from: any;
   to: any;
-  ids: number[];
-  values: number[];
+  ids: [number];
+  values: [number];
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: any;
@@ -88,7 +103,7 @@ export interface TransferSingle {
   operator: any;
   from: any;
   to: any;
-  Oxform_id: number;
+  Contract_id: number;
   value: number;
   blockNumber: number;
   blockTimestamp: number;
@@ -98,7 +113,35 @@ export interface TransferSingle {
 export interface URI {
   id: any;
   value: string;
-  Oxform_id: number;
+  Contract_id: number;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: any;
+}
+
+export interface assertionVote {
+  id: any;
+  assertionID: any;
+  voter: any;
+  vote: boolean;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: any;
+}
+
+export interface contributionAssertionCreated {
+  id: any;
+  formID: number;
+  assertionID: any;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: any;
+}
+
+export interface datasetAssertionCreated {
+  id: any;
+  formID: number;
+  assertionID: any;
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: any;

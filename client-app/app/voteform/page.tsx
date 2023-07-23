@@ -3,7 +3,7 @@ import { FormTable } from "./form-table"
 
 async function getData() {
 
-  const res = await fetch(`http://localhost:4000/form/getForms`, { next: { revalidate: 60 }})
+  const res = await fetch(`http://localhost:4000/voteform/getAllRequestCreated`, { next: { revalidate: 60 }})
 
   if (!res.ok) {
     throw new Error('Failed to fetch data')

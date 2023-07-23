@@ -3,7 +3,7 @@ import ContributePage from "./ContributePage"
 
 async function getData(token:number) {
 
-    const res = await fetch(`http://localhost:4000/form/getFormById?id=${token}`, { next: { revalidate: 60 }})
+    const res = await fetch(`http://localhost:4000/voteform/getById?id=${token}`, { next: { revalidate: 60 }})
   
     if (!res.ok) {
       throw new Error('Failed to fetch data')

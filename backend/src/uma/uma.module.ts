@@ -6,6 +6,6 @@ import { UmaService } from './uma.service';
 @Module({
   providers: [UmaService],
   controllers: [UmaController],
-  exports: [UmaService]
+  exports: [UmaService],
 })
 export class UmaModule {}

@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
 import Link from "next/link"
-import { Form } from "./types"
+import { RequestCreated } from "./types"
 
 
-export const FormColumns: ColumnDef<Form>[] = [
+export const FormColumns: ColumnDef<RequestCreated>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -15,8 +15,8 @@ export const FormColumns: ColumnDef<Form>[] = [
         const form = row.original
         
         return (
-            <Link href={`/form/${form.formID}`} className="text-purple-600 hover:text-purple-800">
-                {form.name}
+            <Link href={`/voteform/${form.formID}`} className="text-purple-600 hover:text-purple-800">
+                {form.requestName}
             </Link>
         )
     }
@@ -26,8 +26,8 @@ export const FormColumns: ColumnDef<Form>[] = [
     header: "category",
   },
   {
-    accessorKey: "formAdmin",
-    header: "formAdmin",
+    accessorKey: "creator",
+    header: "creator",
     
   }, 
   {

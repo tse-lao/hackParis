@@ -55,7 +55,8 @@ export default function Worldcoin() {
 						app_id="app_17dda298a99fac82b669a6da6405db74" // must be an app set to on-chain
 						action={"worldcoin-human-soulbound-token"}
 						signal={address}
-						onSuccess={setProof}
+							onSuccess={setProof}
+							
 						enableTelemetry
 					>
 						{({ open }) => <Button onClick={open} >verify with world id</Button>}

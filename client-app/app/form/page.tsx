@@ -22,9 +22,7 @@ export default async function Forms() {
             columns={FormColumns} 
             data={data} 
         />
-      </div>
-    
-      
+      </div>  
     </div>
   )
 }

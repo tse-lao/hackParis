@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 
 //SUPPORT FOR MORE NETWORKS IS POSSIBLE AS LONG AS THE GRAPH SUPPORTS IT.
 const thegraph = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/50124/forms/version/latest',
+  uri: 'https://api.studio.thegraph.com/query/50124/form2/v1',
   cache: new InMemoryCache(),
 });
 
@@ -86,7 +86,6 @@ export class FormService {
         formAdmin: request.formAdmin,
       };
     });
-    
 
     return requests;
   }
@@ -133,7 +132,6 @@ export class FormService {
     console.log(request);
 
     const contributions = await this.allContributionsByForm(formID);
-    
 
     const readCID = await fetch(`https://ipfs.io/ipfs/${request.formCID}`);
     const data = await readCID.json();

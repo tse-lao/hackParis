@@ -14,8 +14,8 @@ export default async function Market() {
 const data = await getData()
 console.log(data);
   return (
-    <div className="min-h-full mt-24 flex flex-col">
+    <main className="flex min-h-screen flex-col items-center justify-between">
         <Marketplace data={data} />
-    </div>
+    </main>
   )
 }

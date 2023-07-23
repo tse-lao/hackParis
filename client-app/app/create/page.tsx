@@ -7,6 +7,7 @@ import Steps from "@/components/custom/steps/Steps";
 import { ABI, CONTRACTS } from "@/services/contracts";
 import { storeFile } from "@/services/useNFTStorage";
 import { ClaimRequest, ClaimType } from "@sismo-core/sismo-connect-react";
+import { parseEther } from 'viem';
 
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -19,8 +20,10 @@ export default function CreateForm() {
     description: "",
     type: "auto",
     payee: "user",
+    mintable: true, //if false, form is not mintable
     resolution:  60 * 60 * 24 * 2, //in minutes
     reward: 0, //in wei
+    mintPrice: 0, //in wei
     groups: [] as ClaimRequest,
     banner: "",
   });
@@ -29,14 +32,9 @@ export default function CreateForm() {
   const [image, setImage] = useState("");
   const [groups, setGroups] = useState<any[]>();
   const { write: formRequest } = useContractWrite({
-    address: CONTRACTS.mumbai.form,
-    abi: ABI.mumbai.form,
+    address: CONTRACTS.mumbai.formV2,
+    abi: ABI.mumbai.formV2,
     functionName: "formRequest",
-  });
-  const { write: formRequestERC20 } = useContractWrite({
-    address: CONTRACTS.mumbai.form,
-    abi: ABI.mumbai.form,
-    functionName: "formRequestERC20",
   });
   const { write: voteRequest } = useContractWrite({
     address: CONTRACTS.mumbai.voteForm,
@@ -119,10 +117,8 @@ export default function CreateForm() {
           
           return;
         }
-        if(formData.payee == "user") { formRequest({args: [mintPrice, submissionReward, metadata, sismoGroups, eventSismo]})}
+        if(formData.type == "auto") { formRequest({args: [0, parseEther(formData.reward.toString()), formData.mintable, metadata, sismoGroups]})}
         
-        //formRequestERC20
-        if(formData.payee == "master") { formRequestERC20({args: [mintPrice, submissionReward, metadata, sismoGroups, eventSismo]})}
       });
   };
 
@@ -166,10 +162,10 @@ export default function CreateForm() {
     }));
   };
   
-  const selectPayee = (payer: string) => {
+  const selectPayee = (isMintable:boolean) => {
     setFormData((prev) => ({
       ...prev,
-      payee: payer,
+      mintable: isMintable,
     }));
   };
   const removeGroup = (id: string) => {
@@ -221,6 +217,7 @@ export default function CreateForm() {
 
   return (
     <div className="flex flex-col items-center justify-center px-24">
+      <h1 className="text-4xl font-bold text-gray-700">Create Form</h1>
       <Steps steps={steps} activeStep={activeStep} nextStep={nextStep} />
       <UploadBanner handleImage={handleImageChange} image={image} />
 

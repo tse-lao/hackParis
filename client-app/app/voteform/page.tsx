@@ -11,7 +11,7 @@ async function getData() {
   return res.json()
 }
  
-export default async function Forms() {
+export default async function ShowForms() {
   const data = await getData();
   
   return (

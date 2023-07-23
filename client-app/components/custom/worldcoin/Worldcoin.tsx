@@ -5,11 +5,17 @@ import { ABI, CONTRACTS } from '@/services/contracts'
 import { Web3Button } from '@web3modal/react'
 import { IDKitWidget, ISuccessResult } from '@worldcoin/idkit'
 import { useState } from 'react'
-import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi'
+import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite } from 'wagmi'
 
 export default function Worldcoin() {
 	const { address } = useAccount()
 	const [proof, setProof] = useState<ISuccessResult | null>(null)
+	const {data: isClaimed, isLoading} = useContractRead({
+		address: CONTRACTS.mumbai.worldcoin,
+		abi: ABI.mumbai.worldcoin,
+		functionName: 'isClaimed',
+		args: [address],
+	});
 
 	const { config } = usePrepareContractWrite({
 		address: CONTRACTS.mumbai.worldcoin as `0x${string}`,
@@ -39,9 +45,11 @@ export default function Worldcoin() {
 	})
 	const { write } = useContractWrite(config)
 
+	if(isLoading) return <div>Loading...</div>
 	return (
 		<main>
 			{address ? (
+				isClaimed ? (
 				proof ? (
 					<Button onClick={write}
                         className="hover:bg-purple-700"
@@ -56,7 +64,9 @@ export default function Worldcoin() {
 						{({ open }) => <Button onClick={open} >Verify</Button>}
 					</IDKitWidget>
 				)
-			) : (
+			):(
+				<div className="bg-green-500 p-4 rounded-md text-black text-sm">Worldcoin verified!</div>
+			)) : (
 				<Web3Button />
 			)}
 		</main>

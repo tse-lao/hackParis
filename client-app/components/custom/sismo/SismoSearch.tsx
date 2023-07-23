@@ -11,7 +11,7 @@ interface SearchBarProps {
 const SismoSearch: React.FC<SearchBarProps> = ({ loadOptions, onSelect }) => {
   return (
     <>
-    <span>Search group in SISMO</span>
+    <span className="font-bold mb--2">Search group in SISMO</span>
     <AsyncSelect
       cacheOptions
       defaultOptions

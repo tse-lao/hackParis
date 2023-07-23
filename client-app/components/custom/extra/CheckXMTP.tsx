@@ -24,15 +24,16 @@ export default function CheckXMTP() {
 
   useEffect(() => {
     if (address && !isOnNetwork) {
-      //
-      //check if the user is on the network
-      const checkExist = async function () {
-        if (await Client.canMessage(address)) {
-          setIsOnNetwork(true);
-        }
+      const getData = async () => {
+        const result = await fetch(
+          `http://localhost:4000/airstack/hasXMTP?address=${address}`
+        );
+        const data = await result.json();
+        setIsOnNetwork(data);
         setLoading(false);
-      };
-      checkExist();
+      }
+      getData();
+     
     }
   }, [address]);
 
@@ -43,7 +44,7 @@ export default function CheckXMTP() {
       {address && !isOnNetwork ? (
           <Button onClick={initXmtp}>Connect to XMTP</Button>
       ) : (
-        <div className="bg-green-500 p-4 rounded-md text-black">You are connect</div>
+        <div className="bg-green-500 p-4 rounded-md text-black text-sm">You are connect</div>
       )}
     </div>
   );

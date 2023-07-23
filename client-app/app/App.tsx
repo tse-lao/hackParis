@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { WagmiConfig, createConfig } from "wagmi";
@@ -30,25 +30,29 @@ const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
 let links = [
   {
-    href:"/",
-    name:"Overview"
-  }, 
-  {
-    href:"/form",
-    name:"Forms"
-  }, 
-  {
-    href:"/market",
-    name:"Market"
+    href: "/",
+    name: "Overview",
   },
   {
-    href:"/create",
-    name:"Create"
-  }
-]
+    href: "/form",
+    name: "Forms",
+  },
+  {
+    href: "/voteform",
+    name: "Vote Form",
+  },
+  {
+    href: "/market",
+    name: "Market",
+  },
+  {
+    href: "/create",
+    name: "Create Form",
+  },
+];
 export default function App({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  // get the params to display active link.. 
+  const pathname = usePathname();
+  // get the params to display active link..
   return (
     <>
       <WagmiConfig config={wagmiConfig}>
@@ -57,20 +61,21 @@ export default function App({ children }: { children: React.ReactNode }) {
             "flex  w-full my-2 items-center justify-center space-x-8 lg:space-x-12 text-uppercase mt-5"
           }
         >
-          {links.map((link) => (
-             <Link
-             href={link.href}
-             className={`text-md font-medium   ${pathname == link.href && 'text-purple-600'} transition-colors hover:text-purple-400`}
-           >
-             {link.name}
-           </Link>
+          {links.map((link:any, index:number) => (
+            <Link
+              key={index}
+              href={link.href}
+              className={`text-spacing font-medium uppercase  ${
+                pathname == link.href && "text-purple-600"
+              } transition-colors hover:text-purple-400`}
+            >
+              {link.name}
+            </Link>
           ))}
-         
+  
           <Web3Button />
         </nav>
-        <div className="mt-12">
-          {children}
-        </div>
+        <div className="mt-12">{children}</div>
         <ToastContainer />
       </WagmiConfig>
       <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />

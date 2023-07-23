@@ -86,7 +86,7 @@ export default function FormDetails({ formData, handleChange, submitDetails, sel
                   <RadioGroup
                     name="type"
                     onValueChange={selectPayee}
-                    value={formData.payee}
+                    value={formData.mintable}
                     className="grid grid-cols-2 gap-4"
                   >
                     <Label
@@ -94,28 +94,28 @@ export default function FormDetails({ formData, handleChange, submitDetails, sel
                       className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                     >
                       <RadioGroupItem
-                        value="user"
+                        value="true"
                         id="user"
                         className="sr-only"
                       />
-                      Contributor
+                      Mintable
                     </Label>
                     <Label
                       htmlFor="master"
                       className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                     >
                       <RadioGroupItem
-                        value="master"
+                        value="false"
                         id="master"
                         className="sr-only"
                       />
-                      Paymaster
+                      Private
                     </Label>
                   </RadioGroup>
                 </div>
 
                 <InputField
-                  label={formData.payee == "user" ? "Reward" : "Sponsor "}
+                  label={formData.mintable ? "Mintprice" : "Reward "}
                   name="reward"
                   type="number"
                   value={formData.reward}

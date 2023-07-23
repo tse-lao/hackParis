@@ -21,8 +21,4 @@ module.exports = async({ deployments }) => {
 
     console.log("worldcoinSoulboundToken address is  :", worldcoinSoulboundToken.address)
 
-    // const WorldcoinSoulboundTokenInstance = WorldcoinSoulboundToken.attach("0xCEe0625a373BA897a54E2971f7aE627E32308c13")
-
-    // let tx = await WorldcoinSoulboundTokenInstance.ownerOf(0)
-    // console.log(tx)
 }

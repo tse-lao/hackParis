@@ -19,8 +19,8 @@ The OxForm Protocol addresses these challenges by integrating Sismo and Worldcoi
 ---
 #### SISMO :
 The platform integrates Sismo as an on-chain global verifier, enabling form creators to select specific Sismo factory groups. These groups restrict submissions to verified users, fostering a high-quality and trustworthy data environment. Additionally, a Worldcoin group permits only Worldcoin Soulbound ERC721 token holders to submit data on forms.
-    - [GlobalOnChainVerifier](https://github.com/tse-lao/hackParis/blob/main/contracts/contracts/sismo/sismoGlobalVerifier.sol )
-    - [SismoConnect](https://github.com/tse-lao/hackParis/tree/main/client-app/components/custom/sismo)
+- [GlobalOnChainVerifier](https://github.com/tse-lao/hackParis/blob/main/contracts/contracts/sismo/sismoGlobalVerifier.sol )
+- [SismoConnect](https://github.com/tse-lao/hackParis/tree/main/client-app/components/custom/sismo)
 #### WORLDCOIN :
 OxForm utilizes an on-chain Worldcoin verifier to mint one-time Soulbound ERC721 tokens for verified humans. These tokens generate zero-knowledge proofs with Sismo for human verification within the Forms contracts.
 
@@ -28,14 +28,16 @@ OxForm utilizes an on-chain Worldcoin verifier to mint one-time Soulbound ERC721
 - [WidgetCode](https://github.com/tse-lao/hackParis/blob/main/client-app/components/custom/worldcoin/Worldcoin.tsx)
 #### FILECOIN & IPFS :
 OxForm securely stores form metadata and submissions on decentralized networks IPFS and Filecoin through Lighthouse. Data is encrypted and token-gated to Form NFT holders, incentivizing contributors through token rewards and encouraging interested parties to decrypt and access the submissions.
-- [Lighthouse implementation]()
+- [Lighthouse implementation](https://github.com/tse-lao/hackParis/blob/main/backend/src/files/files.service.ts)
 #### UMA V3 :
 The OxForm Protocol successfully implements UMA's custom escalation manager, enabling dispute resolution and a community-based voting system. This integration, combined with ZK proofs from Worldcoin and Sismo, empowers verified users to decrypt and dispute form submissions, enhancing data quality and integrity. Contributors receive NFT mints as rewards for successful submissions.
 - [UMA_Contracts](https://github.com/tse-lao/hackParis/tree/main/contracts/contracts/UMA     )
 - [BackendIntegration](https://github.com/tse-lao/hackParis/tree/main/backend/src/uma)
 #### THE GRAPH :
 Custom subgraphs are deployed to index events from OxForm and OxOptimisticForm contracts, along with redeploying the UMA subgraph on the Mumbai testnet. These subgraphs ensure a seamless application experience, supporting platform functionality during the hackathon.
-- [Subgraphs]()
+- [0xForm_Graph](https://api.studio.thegraph.com/query/50124/forms/v0.1)
+- [0xOptimisticForm_Graph](https://api.studio.thegraph.com/query/50124/voteforms/version/latest)
+- [new UMAmumbaiGraph](https://api.studio.thegraph.com/query/50124/umamumbai/version/latest)
 
 #### WALLET CONNECT :
 OxForm employs Wallet Connect for secure user authentication, ensuring a seamless and user-friendly experience during platform access.
@@ -59,3 +61,8 @@ OxForm incorporates XMTP to provide a chat layer atop forms, enabling interested
 - [0xForm](https://mumbai.polygonscan.com/address/0x407e7f38571D4772C84AAa40BF56d9850059Daa6#code)
 - [0xOptimisticForm](https://mumbai.polygonscan.com/address/0x41bD4839ca2180282d35e7b01CDFeEDB16EEefB8#code)
     - [OxOptimisticFormEscalationManager](https://mumbai.polygonscan.com/address/0xFF4B6BF7c9eBFE1cc5b1E47c09D3290439735C25#code)
+
+#### Contracts Deployment Full WorkFlow Scripts.
+- [WorldCoinSoulboundToken](https://github.com/tse-lao/hackParis/blob/main/contracts/deploy/00_deploy_WorldcoinSoulboundToken.js)
+- [OxForm](https://github.com/tse-lao/hackParis/blob/main/contracts/deploy/01_deploy_OxForm.js)
+- [OxOptimisticForm](https://github.com/tse-lao/hackParis/blob/main/contracts/deploy/02_deploy_OxOptimisticForm.js)

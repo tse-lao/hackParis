@@ -28,7 +28,10 @@ module.exports = async({ deployments }) => {
     const OxForm = await hre.ethers.getContractFactory("OxForm")
 
     // const oxForm = await OxForm.deploy(sismoGlobalVerifier.address, sender.address)
-    const oxForm = await OxForm.deploy("0x9A84aA1594F6EFd15bb93BC75b958AaC0AEcFe05", "0x2Eb638C8d78673A14322aBE1d0317AD32F3f5249")
+    const oxForm = await OxForm.deploy(
+        "0x9A84aA1594F6EFd15bb93BC75b958AaC0AEcFe05",
+        "0x2Eb638C8d78673A14322aBE1d0317AD32F3f5249"
+    )
 
     await oxForm.deployed()
 
@@ -41,12 +44,12 @@ module.exports = async({ deployments }) => {
     let category = "category"
     let formMetadataCID = "formMetadataCID"
     let formAdmin = "0x044B595C9b94A17Adc489bD29696af40ccb3E4d2"
-    let EventMetadata = [formCID, name, category, formMetadataCID, formAdmin]
+    let EventMetadata = [formCID, name, category, formMetadataCID, formAdmin, "true"]
 
     const OxFormInstance = OxForm.attach(oxForm.address)
         // const OxFormInstance = OxForm.attach("0x1c510a3439d01E066b5C30A3A882A5DC1A1B98F7")
 
-    let tx = await OxFormInstance.formRequest(mintPrice, submissionReward, EventMetadata, [], {
+    let tx = await OxFormInstance.formRequest(mintPrice, submissionReward, true, EventMetadata, [], {
         value: 10,
         gasLimit: 10000000,
     })

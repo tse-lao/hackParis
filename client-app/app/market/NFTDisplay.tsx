@@ -32,7 +32,7 @@ export function NFTDisplay({
           <div className="overflow-hidden rounded-md w-full">
 
             <Image
-              src={`https://ipfs.io/ipfs/${item.image}`}
+              src={`https://ipfs.io/ipfs/bafybeihdmcbjjszphmfsenjq46et63ym2hwnb4kygm35lkxdl3sowgou4i`}
               alt={item.name}
               width={100}
               height={100}

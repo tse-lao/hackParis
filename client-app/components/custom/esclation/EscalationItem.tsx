@@ -63,9 +63,9 @@ export default function EscalationItem({ item }: { item: any }) {
              >Execute</Button>
         )}
          {item.status === "dispute" && (
-            <div className="flex flex-col">
-             <Button className="col-span-1"  onClick={(e) => {e.preventDefault; voteUp();}}>Up</Button>
-             <Button className="col-span-1"  onClick={(e) => {e.preventDefault; voteDown();}}>Down</Button>
+            <div className="flex flex-col gap-1">
+             <Button className="col-span-1 bg-green-600"  onClick={(e) => {e.preventDefault; voteUp();}}>Up</Button>
+             <Button className="col-span-1 bg-red-600"  onClick={(e) => {e.preventDefault; voteDown();}}>Down</Button>
             </div>
         )}
        

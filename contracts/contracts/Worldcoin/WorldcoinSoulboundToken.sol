@@ -76,7 +76,7 @@ contract WorldcoinSoulboundToken is ERC721 {
         // Make sure to emit some kind of event afterwards!
     }
 
-    function tokenURI(uint256 tokenId) public override view returns(string memory){
+    function tokenURI(uint256 tokenId) public override pure returns(string memory){
         return "https://gateway.lighthouse.storage/ipfs/QmdyNTa7tTtvsV1ADtpVwghACFa5rLEBj7xKXDJwMJeE7m";
     }
 

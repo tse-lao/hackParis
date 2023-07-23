@@ -39,9 +39,9 @@ export default function CreateForm() {
     functionName: "formRequestERC20",
   });
   const { write: voteRequest } = useContractWrite({
-    address: CONTRACTS.mumbai.form,
-    abi: ABI.mumbai.form,
-    functionName: "formRequest",
+    address: CONTRACTS.mumbai.voteForm,
+    abi: ABI.mumbai.voteForm,
+    functionName: "optimisticFormRequest",
   });
 
   const nextStep = (step: number) => {
@@ -84,9 +84,12 @@ export default function CreateForm() {
         const submissionReward = 0;
 
         const sismoGroups = [];
+        const eventSismo = [];
         if (groups != undefined) {
           for (let i = 0; i < groups.length; i++) {
+            
             if (groups[i] != undefined) {
+              eventSismo.push(groups[i].id);
               sismoGroups.push([
                 ClaimType.GTE,
                 groups[i].id,
@@ -100,11 +103,26 @@ export default function CreateForm() {
           }
         }
         
-        
-        if(formData.payee == "user") { formRequest({args: [mintPrice, submissionReward, metadata, sismoGroups]})}
+        if(formData.type == "vote"){
+          let RequestDetails = [
+                 "category",      //category
+                 1,               //rewquiredContributions
+                 0,               //enrties
+                 1,           //minSubRows
+                 formData.resolution,        //
+                 []           //assertions
+             ]
+            
+          voteRequest({args:[
+            result, formData.name, formData.description, RequestDetails, sismoGroups, [address], eventSismo
+          ]})
+          
+          return;
+        }
+        if(formData.payee == "user") { formRequest({args: [mintPrice, submissionReward, metadata, sismoGroups, eventSismo]})}
         
         //formRequestERC20
-        if(formData.payee == "master") { formRequestERC20({args: [mintPrice, submissionReward, metadata, sismoGroups]})}
+        if(formData.payee == "master") { formRequestERC20({args: [mintPrice, submissionReward, metadata, sismoGroups, eventSismo]})}
       });
   };
 

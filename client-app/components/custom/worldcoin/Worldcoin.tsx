@@ -1,10 +1,9 @@
 "use client"
 import { Button } from '@/components/ui/button'
 import { decode } from '@/lib/wld'
-import { BigNumber } from "ethers";
 import { ABI, CONTRACTS } from '@/services/contracts'
 import { Web3Button } from '@web3modal/react'
-import { IDKitWidget, ISuccessResult, solidityEncode } from '@worldcoin/idkit'
+import { IDKitWidget, ISuccessResult } from '@worldcoin/idkit'
 import { useState } from 'react'
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi'
 
@@ -19,25 +18,22 @@ export default function Worldcoin() {
 		functionName: 'MintHumanBadge',
 		args: [
 			address!,
-			proof?.merkle_root ? decode<BigNumber>('uint256', proof?.merkle_root ?? '') : BigNumber.from(0),
-			proof?.nullifier_hash ? decode<BigNumber>('uint256', proof?.nullifier_hash ?? '') : BigNumber.from(0),
-			address!,
-			proof?.merkle_root ? decode<BigNumber>('uint256', proof?.merkle_root ?? '') : BigNumber.from(0),
-			proof?.nullifier_hash ? decode<BigNumber>('uint256', proof?.nullifier_hash ?? '') : BigNumber.from(0),
+			proof?.merkle_root ? decode<BigInt>('uint256', proof?.merkle_root ?? '') : BigInt(0),
+			proof?.nullifier_hash ? decode<BigInt>('uint256', proof?.nullifier_hash ?? '') : BigInt(0),
 			proof?.proof
-				? decode<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>(
+				? decode<[BigInt, BigInt, BigInt, BigInt, BigInt, BigInt, BigInt, BigInt]>(
 						'uint256[8]',
 						proof?.proof ?? ''
 				  )
 				: [
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
-						BigNumber.from(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
+						BigInt(0),
 				  ],
 		],
 	})
@@ -53,13 +49,11 @@ export default function Worldcoin() {
 				) : (
 					<IDKitWidget
 						app_id="app_17dda298a99fac82b669a6da6405db74" // must be an app set to on-chain
-						action={"worldcoin-human-soulbound-token"}
+						action="worldcoin-human-soulbound-token"
 						signal={address}
-							onSuccess={setProof}
-							
-						enableTelemetry
+						onSuccess={setProof}
 					>
-						{({ open }) => <Button onClick={open} >verify with world id</Button>}
+						{({ open }) => <Button onClick={open} >Verify</Button>}
 					</IDKitWidget>
 				)
 			) : (
